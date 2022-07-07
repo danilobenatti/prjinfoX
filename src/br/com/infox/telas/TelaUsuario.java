@@ -80,7 +80,6 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 					JOptionPane.showMessageDialog(null,
 						"Usuário id(" + resultSet.getInt(1) + ") foi adicionado!");
 				}
-				clearUserFields();
 			}
 		} catch (SQLIntegrityConstraintViolationException ex) {
 			JOptionPane.showMessageDialog(null, "Login de usuário já existe!");
@@ -94,12 +93,12 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 	}
 
 	//read
-	private void finderOneUserById(Integer id) {
+	private void finderOneUserById(Integer idUser) {
 		String select = "SELECT * FROM tbusuarios WHERE iduser = ?";
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(select);
-			preparedStatement.setInt(1, id);
+			preparedStatement.setInt(1, idUser);
 			resultSet = preparedStatement.executeQuery();
 			if (resultSet.next()) {
 				jTextFieldIdUser.setText(resultSet.getString("iduser"));
@@ -110,7 +109,6 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 				jComboBoxPerfil.setSelectedItem(resultSet.getString("perfil"));
 			} else {
 				JOptionPane.showMessageDialog(null, "Usuário não encontrado!");
-				clearUserFields();
 			}
 			resultSet.close();
 			preparedStatement.close();
@@ -122,36 +120,24 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 	}
 
 	//update
-	private void updateOneUserById() {
+	private void updateOneUserById(Integer idUser) {
 		String update = "UPDATE tbusuarios SET "
 			+ "usuario = ?, fone = ?, login = ?, senha = ?, perfil = ? "
 			+ "WHERE iduser = ?";
 		connection = ModuloConexao.connection();
 		try {
-			if (!jTextFieldIdUser.getText().isEmpty()
-				&& !jTextFieldUsuario.getText().isEmpty()
-				&& !jTextFieldLogin.getText().isEmpty()
-				&& !jPasswordFieldSenha.getPassword().equals("")
-				&& !jComboBoxPerfil.getSelectedItem().equals("")) {
-
-				final int idUser = Integer.parseInt(jTextFieldIdUser.getText());
-
-				preparedStatement = connection.prepareStatement(update,
-					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-				preparedStatement.setString(1, jTextFieldUsuario.getText());
-				preparedStatement.setString(2, jTextFieldFone.getText());
-				preparedStatement.setString(3, jTextFieldLogin.getText());
-				preparedStatement.setString(4, new String(jPasswordFieldSenha.getPassword()));
-				preparedStatement.setString(5, jComboBoxPerfil.getSelectedItem().toString());
-				preparedStatement.setInt(6, idUser);
-				int updateOk = preparedStatement.executeUpdate();
-				if (updateOk > 0) {
-					JOptionPane.showMessageDialog(null,
-						"Usuário id(" + idUser + ") foi atualizado!");
-					clearUserFields();
-				}
-			} else {
-				JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
+			preparedStatement = connection.prepareStatement(update,
+				ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			preparedStatement.setString(1, jTextFieldUsuario.getText());
+			preparedStatement.setString(2, jTextFieldFone.getText());
+			preparedStatement.setString(3, jTextFieldLogin.getText());
+			preparedStatement.setString(4, new String(jPasswordFieldSenha.getPassword()));
+			preparedStatement.setString(5, jComboBoxPerfil.getSelectedItem().toString());
+			preparedStatement.setInt(6, idUser);
+			int updateOk = preparedStatement.executeUpdate();
+			if (updateOk > 0) {
+				JOptionPane.showMessageDialog(null,
+					"Usuário id(" + idUser + ") foi atualizado!");
 			}
 		} catch (SQLIntegrityConstraintViolationException ex) {
 			JOptionPane.showMessageDialog(null, "Login de usuário já existe!");
@@ -165,24 +151,16 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 	}
 
 	//delete
-	private void deleteOneUserById() {
+	private void deleteOneUserById(Integer idUser) {
 		String delete = "DELETE FROM tbusuarios WHERE iduser = ?";
 		connection = ModuloConexao.connection();
 		try {
-			if (!jTextFieldIdUser.getText().isEmpty()) {
-
-				final int idUser = Integer.parseInt(jTextFieldIdUser.getText());
-
-				preparedStatement = connection.prepareStatement(delete);
-				preparedStatement.setInt(1, idUser);
-				int deleteOk = preparedStatement.executeUpdate();
-				if (deleteOk > 0) {
-					JOptionPane.showMessageDialog(null, "Usuário removido.",
-						"REMOÇÃO REALIZADA!", JOptionPane.INFORMATION_MESSAGE);
-					clearUserFields();
-				}
-			} else {
-				JOptionPane.showMessageDialog(null, "Necessário informar id do usuário.");
+			preparedStatement = connection.prepareStatement(delete);
+			preparedStatement.setInt(1, idUser);
+			int deleteOk = preparedStatement.executeUpdate();
+			if (deleteOk > 0) {
+				JOptionPane.showMessageDialog(null, "Usuário removido.",
+					"REMOÇÃO REALIZADA!", JOptionPane.INFORMATION_MESSAGE);
 			}
 		} catch (SQLException ex) {
 			printSQLException(ex);
@@ -418,9 +396,10 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
     private void jButtonUserCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUserCreateActionPerformed
 		if (!jTextFieldUsuario.getText().isEmpty()
 			&& !jTextFieldLogin.getText().isEmpty()
-			&& !jPasswordFieldSenha.getPassword().equals("")
+			&& jPasswordFieldSenha.getPassword().length > 0
 			&& !jComboBoxPerfil.getSelectedItem().equals("")) {
 			addOneUser();
+			clearUserFields();
 		} else {
 			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
 		}
@@ -447,8 +426,15 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jPasswordFieldSenhaFocusGained
 
     private void jButtonUserUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUserUpdateActionPerformed
-		if (!jTextFieldIdUser.getText().isEmpty()) {
-			updateOneUserById();
+		if (!jTextFieldIdUser.getText().isEmpty()
+			&& !jTextFieldUsuario.getText().isEmpty()
+			&& !jTextFieldLogin.getText().isEmpty()
+			&& jPasswordFieldSenha.getPassword().length > 0
+			&& !jComboBoxPerfil.getSelectedItem().equals("")) {
+			updateOneUserById(Integer.parseInt(jTextFieldIdUser.getText()));
+			clearUserFields();
+		} else {
+			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
 		}
     }//GEN-LAST:event_jButtonUserUpdateActionPerformed
 
@@ -460,11 +446,14 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			int showConfirmDialog = JOptionPane.showConfirmDialog(null, message,
 				"EXCLUIR USUÁRIO", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if (showConfirmDialog == JOptionPane.YES_OPTION) {
-				deleteOneUserById();
+				deleteOneUserById(idUser);
 				clearUserFields();
 			} else {
 				JOptionPane.showMessageDialog(null, "Operação de exclusão cancelada");
 			}
+		} else {
+			JOptionPane.showMessageDialog(null, "Para excluir um usuário "
+				+ "é necessário informar o id.");
 		}
     }//GEN-LAST:event_jButtonUserDeleteActionPerformed
 
