@@ -1,6 +1,9 @@
 package br.com.infox.telas;
 
 import br.com.infox.dal.ModuloConexao;
+import static br.com.infox.dal.Tools.isNumber;
+import static br.com.infox.dal.Tools.setValues;
+import static br.com.infox.dal.Tools.printSQLException;
 import java.awt.HeadlessException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,28 +30,6 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		initComponents();
 	}
 
-	public static void setValues(PreparedStatement ps, Object... values) throws SQLException {
-		for (int i = 0; i < values.length; i++) {
-			ps.setObject(i + 1, values[i]);
-		}
-	}
-
-	public static void printSQLException(SQLException ex) {
-		for (Throwable e : ex) {
-			if (e instanceof SQLException) {
-				System.err.println("SQLState: " + ((SQLException) e).getSQLState());
-				System.err.println("Error Code: " + ((SQLException) e).getErrorCode());
-				System.err.println("Message: " + e.getMessage());
-				e.printStackTrace(System.err);
-				Throwable throwable = ex.getCause();
-				while (throwable != null) {
-					System.out.println("Cause: " + throwable);
-					throwable = throwable.getCause();
-				}
-			}
-		}
-	}
-
 	private void clearUserFields() {
 		jTextFieldIdUser.setText(null);
 		jTextFieldUsuario.setText(null);
@@ -58,18 +39,17 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 	}
 
 	//create
-	private void addOneUser() {
+	private void addUser() {
 		String insert = "INSERT INTO tbusuarios"
 			+ " (usuario,fone,login,senha,perfil) VALUES (?,?,?,?,?)";
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(insert,
 				Statement.RETURN_GENERATED_KEYS);
-			preparedStatement.setString(1, jTextFieldUsuario.getText());
-			preparedStatement.setString(2, jTextFieldFone.getText());
-			preparedStatement.setString(3, jTextFieldLogin.getText());
-			preparedStatement.setString(4, new String(jPasswordFieldSenha.getPassword()));
-			preparedStatement.setString(5, jComboBoxPerfil.getSelectedItem().toString());
+			setValues(preparedStatement, jTextFieldUsuario.getText(),
+				jTextFieldFone.getText(), jTextFieldLogin.getText(),
+				new String(jPasswordFieldSenha.getPassword()),
+				jComboBoxPerfil.getSelectedItem().toString());
 			int insertOk = preparedStatement.executeUpdate();
 			if (insertOk > 0) {
 				resultSet = preparedStatement.getGeneratedKeys();
@@ -85,16 +65,15 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			JOptionPane.showMessageDialog(null, "Login de usuário já existe!");
 		} catch (SQLException ex) {
 			printSQLException(ex);
-		} catch (HeadlessException ex) {
-			System.err.println("Error: " + ex.getMessage());
 		} finally {
 			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
 		}
 	}
 
-	//read
-	private void finderOneUserById(Integer idUser) {
+	//read - find by Id
+	private boolean finderUserById(Integer idUser) {
 		String select = "SELECT * FROM tbusuarios WHERE iduser = ?";
+		boolean findUser = false;
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(select);
@@ -107,20 +86,44 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 				jTextFieldLogin.setText(resultSet.getString("login"));
 				jPasswordFieldSenha.setText(resultSet.getString("senha"));
 				jComboBoxPerfil.setSelectedItem(resultSet.getString("perfil"));
-			} else {
-				JOptionPane.showMessageDialog(null, "Usuário não encontrado!");
+				findUser = true;
 			}
-			resultSet.close();
-			preparedStatement.close();
 		} catch (SQLException ex) {
 			Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
 		} finally {
 			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
 		}
+		return findUser;
+	}
+
+	//read - find by Login
+	private boolean finderUserByLogin(String loginUser) {
+		String select = "SELECT * FROM tbusuarios WHERE login = ?";
+		boolean findUser = false;
+		connection = ModuloConexao.connection();
+		try {
+			preparedStatement = connection.prepareStatement(select);
+			preparedStatement.setString(1, loginUser);
+			resultSet = preparedStatement.executeQuery();
+			if (resultSet.next()) {
+				jTextFieldIdUser.setText(resultSet.getString("iduser"));
+				jTextFieldUsuario.setText(resultSet.getString("usuario"));
+				jTextFieldFone.setText(resultSet.getString("fone"));
+				jTextFieldLogin.setText(resultSet.getString("login"));
+				jPasswordFieldSenha.setText(resultSet.getString("senha"));
+				jComboBoxPerfil.setSelectedItem(resultSet.getString("perfil"));
+				findUser = true;
+			}
+		} catch (SQLException ex) {
+			Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
+		} finally {
+			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+		}
+		return findUser;
 	}
 
 	//update
-	private void updateOneUserById(Integer idUser) {
+	private void updateUserById(Integer idUser) {
 		String update = "UPDATE tbusuarios SET "
 			+ "usuario = ?, fone = ?, login = ?, senha = ?, perfil = ? "
 			+ "WHERE iduser = ?";
@@ -128,12 +131,10 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		try {
 			preparedStatement = connection.prepareStatement(update,
 				ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			preparedStatement.setString(1, jTextFieldUsuario.getText());
-			preparedStatement.setString(2, jTextFieldFone.getText());
-			preparedStatement.setString(3, jTextFieldLogin.getText());
-			preparedStatement.setString(4, new String(jPasswordFieldSenha.getPassword()));
-			preparedStatement.setString(5, jComboBoxPerfil.getSelectedItem().toString());
-			preparedStatement.setInt(6, idUser);
+			setValues(preparedStatement, jTextFieldUsuario.getText(),
+				jTextFieldFone.getText(), jTextFieldLogin.getText(),
+				new String(jPasswordFieldSenha.getPassword()),
+				jComboBoxPerfil.getSelectedItem().toString(), idUser);
 			int updateOk = preparedStatement.executeUpdate();
 			if (updateOk > 0) {
 				JOptionPane.showMessageDialog(null,
@@ -146,12 +147,12 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		} catch (HeadlessException ex) {
 			System.err.println("Error: " + ex.getMessage());
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			ModuloConexao.fecharConexao(connection, preparedStatement);
 		}
 	}
 
 	//delete
-	private void deleteOneUserById(Integer idUser) {
+	private void deleteUserById(Integer idUser) {
 		String delete = "DELETE FROM tbusuarios WHERE iduser = ?";
 		connection = ModuloConexao.connection();
 		try {
@@ -165,7 +166,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			printSQLException(ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			ModuloConexao.fecharConexao(connection, preparedStatement);
 		}
 	}
 
@@ -190,6 +191,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
         jPasswordFieldSenha = new javax.swing.JPasswordField();
         jLabelPerfil = new javax.swing.JLabel();
         jComboBoxPerfil = new javax.swing.JComboBox<>();
+        jButtonUserNew = new javax.swing.JButton();
         jButtonUserCreate = new javax.swing.JButton();
         jButtonUserRead = new javax.swing.JButton();
         jButtonUserUpdate = new javax.swing.JButton();
@@ -260,8 +262,17 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
         jComboBoxPerfil.setSelectedIndex(1);
         jComboBoxPerfil.setPreferredSize(new java.awt.Dimension(110, 22));
 
+        jButtonUserNew.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconNew.png"))); // NOI18N
+        jButtonUserNew.setToolTipText("Iniciar novo usuário");
+        jButtonUserNew.setBorder(null);
+        jButtonUserNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonUserNewActionPerformed(evt);
+            }
+        });
+
         jButtonUserCreate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconCreate.png"))); // NOI18N
-        jButtonUserCreate.setToolTipText("Adicionar informações de um usuário");
+        jButtonUserCreate.setToolTipText("Adicionar novo usuário");
         jButtonUserCreate.setBorder(null);
         jButtonUserCreate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonUserCreate.addActionListener(new java.awt.event.ActionListener() {
@@ -281,7 +292,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
         });
 
         jButtonUserUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconUpdate.png"))); // NOI18N
-        jButtonUserUpdate.setToolTipText("Atualizar informações de um usuário");
+        jButtonUserUpdate.setToolTipText("Atualizar usuário selecionado");
         jButtonUserUpdate.setBorder(null);
         jButtonUserUpdate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonUserUpdate.addActionListener(new java.awt.event.ActionListener() {
@@ -291,7 +302,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
         });
 
         jButtonUserDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconDelete.png"))); // NOI18N
-        jButtonUserDelete.setToolTipText("Apagar informações de um usuário");
+        jButtonUserDelete.setToolTipText("Excluir um usuário");
         jButtonUserDelete.setBorder(null);
         jButtonUserDelete.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonUserDelete.addActionListener(new java.awt.event.ActionListener() {
@@ -330,21 +341,24 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jTextFieldFone, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jComboBoxPerfil, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jTextFieldIdUser, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jTextFieldIdUser, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addComponent(jLabelInfo)
+                        .addGap(20, 20, 20))
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButtonUserNew)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButtonUserCreate)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButtonUserRead)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButtonUserUpdate)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonUserDelete)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 133, Short.MAX_VALUE)
-                .addComponent(jLabelInfo)
-                .addGap(20, 20, 20))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButtonUserDelete)
+                        .addContainerGap(238, Short.MAX_VALUE))))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButtonUserCreate, jButtonUserDelete, jButtonUserRead, jButtonUserUpdate});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButtonUserCreate, jButtonUserDelete, jButtonUserNew, jButtonUserRead, jButtonUserUpdate});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -371,25 +385,86 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
                     .addComponent(jComboBoxPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabelPerfil))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonUserCreate)
-                    .addComponent(jButtonUserRead)
-                    .addComponent(jButtonUserUpdate)
-                    .addComponent(jButtonUserDelete))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jButtonUserCreate, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(jButtonUserRead, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(jButtonUserUpdate, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(jButtonUserDelete))
+                    .addComponent(jButtonUserNew))
                 .addContainerGap(173, Short.MAX_VALUE))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButtonUserCreate, jButtonUserDelete, jButtonUserRead, jButtonUserUpdate});
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButtonUserCreate, jButtonUserDelete, jButtonUserNew, jButtonUserRead, jButtonUserUpdate});
 
         setBounds(0, 0, 650, 450);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonUserReadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUserReadActionPerformed
-		if (!jTextFieldIdUser.getText().isEmpty()) {
-			finderOneUserById(Integer.parseInt(jTextFieldIdUser.getText()));
-		} else {
-			JOptionPane.showMessageDialog(null, "Necessário informar número id para pesquisa.");
-			clearUserFields();
+		String[] option = {"ID", "Login"};
+		String search = "", message = null, messageTitle = null;
+		int messageType = 0;
+		if (!jTextFieldIdUser.getText().isEmpty() ^ !jTextFieldLogin.getText().isEmpty()) {
+			if (!jTextFieldIdUser.getText().isEmpty()) {
+				search = option[0];
+			}
+			if (!jTextFieldLogin.getText().isEmpty()) {
+				search = option[1];
+			}
+		} else if (jTextFieldIdUser.getText().isEmpty() && jTextFieldLogin.getText().isEmpty()) {
+			search = "";
+		} else if (!jTextFieldIdUser.getText().isEmpty() && !jTextFieldLogin.getText().isEmpty()) {
+			message = "Por qual parâmetro deve ser feita a pesquisa?";
+			messageTitle = "Parâmetro para Pesquisa";
+			int indexOption = JOptionPane.showOptionDialog(null, message, messageTitle,
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
+			if (indexOption == 0) {
+				search = option[0];
+			}
+			if (indexOption == 1) {
+				search = option[1];
+			}
+		}
+		switch (search) {
+			case "ID":
+				if (isNumber(jTextFieldIdUser.getText())) {
+					boolean findUserById = finderUserById(Integer.parseInt(jTextFieldIdUser.getText()));
+					message = "Encontrado usuário! " + jTextFieldUsuario.getText();
+					messageTitle = "Resultado da pesquisa";
+					messageType = JOptionPane.INFORMATION_MESSAGE;
+					if (!findUserById) {
+						message = "Usuário por id não encontrado!";
+						messageTitle = "Pesquisa por ID";
+						messageType = JOptionPane.WARNING_MESSAGE;
+						clearUserFields();
+					}
+				} else {
+					message = "Informe um número válido para o campo de ID.";
+					messageTitle = "Erro parâmetro ID";
+					messageType = JOptionPane.ERROR_MESSAGE;
+					clearUserFields();
+				}
+				break;
+			case "Login":
+				boolean finderUserByLogin = finderUserByLogin(jTextFieldLogin.getText());
+				message = "Encontrado usuário! " + jTextFieldUsuario.getText();
+				messageTitle = "Resultado da pesquisa";
+				messageType = JOptionPane.INFORMATION_MESSAGE;
+				if (!finderUserByLogin) {
+					message = "Usuário por login não encontrado!";
+					messageTitle = "Pesquisa por Login";
+					messageType = JOptionPane.WARNING_MESSAGE;
+					clearUserFields();
+				}
+				break;
+			default:
+				message = "Informe um id ou login para pesquisar um usuário.";
+				messageTitle = "Atenção!";
+				messageType = JOptionPane.WARNING_MESSAGE;
+				clearUserFields();
+		}
+		if (message != null) {
+			JOptionPane.showMessageDialog(null, message, messageTitle, messageType);
 		}
     }//GEN-LAST:event_jButtonUserReadActionPerformed
 
@@ -398,7 +473,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			&& !jTextFieldLogin.getText().isEmpty()
 			&& jPasswordFieldSenha.getPassword().length > 0
 			&& !jComboBoxPerfil.getSelectedItem().equals("")) {
-			addOneUser();
+			addUser();
 			clearUserFields();
 		} else {
 			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
@@ -431,7 +506,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			&& !jTextFieldLogin.getText().isEmpty()
 			&& jPasswordFieldSenha.getPassword().length > 0
 			&& !jComboBoxPerfil.getSelectedItem().equals("")) {
-			updateOneUserById(Integer.parseInt(jTextFieldIdUser.getText()));
+			updateUserById(Integer.parseInt(jTextFieldIdUser.getText()));
 			clearUserFields();
 		} else {
 			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
@@ -446,7 +521,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			int showConfirmDialog = JOptionPane.showConfirmDialog(null, message,
 				"EXCLUIR USUÁRIO", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if (showConfirmDialog == JOptionPane.YES_OPTION) {
-				deleteOneUserById(idUser);
+				deleteUserById(idUser);
 				clearUserFields();
 			} else {
 				JOptionPane.showMessageDialog(null, "Operação de exclusão cancelada");
@@ -457,9 +532,14 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		}
     }//GEN-LAST:event_jButtonUserDeleteActionPerformed
 
+    private void jButtonUserNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUserNewActionPerformed
+		clearUserFields();
+    }//GEN-LAST:event_jButtonUserNewActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonUserCreate;
     private javax.swing.JButton jButtonUserDelete;
+    private javax.swing.JButton jButtonUserNew;
     private javax.swing.JButton jButtonUserRead;
     private javax.swing.JButton jButtonUserUpdate;
     private javax.swing.JComboBox<String> jComboBoxPerfil;

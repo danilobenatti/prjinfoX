@@ -79,4 +79,8 @@ public class ModuloConexao {
 	public static void fecharConexao(Connection conn, PreparedStatement preparedStatement, ResultSet resultSet) {
 		fechar(conn, preparedStatement, resultSet);
 	}
+
+	public static void fecharConexao(Connection conn, PreparedStatement preparedStatement) {
+		fechar(conn, preparedStatement, null);
+	}
 }

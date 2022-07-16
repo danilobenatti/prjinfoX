@@ -33,7 +33,7 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+              <EmptySpace min="20" pref="20" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -63,20 +63,23 @@
                           </Group>
                           <Component id="jTextFieldIdUser" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <EmptySpace type="separate" max="32767" attributes="0"/>
+                      <Component id="jLabelInfo" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
+                      <Component id="jButtonUserNew" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="32767" attributes="0"/>
                       <Component id="jButtonUserCreate" linkSize="1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace type="unrelated" max="32767" attributes="0"/>
                       <Component id="jButtonUserRead" linkSize="1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace type="unrelated" max="32767" attributes="0"/>
                       <Component id="jButtonUserUpdate" linkSize="1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace type="unrelated" max="32767" attributes="0"/>
                       <Component id="jButtonUserDelete" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="238" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="133" max="32767" attributes="0"/>
-              <Component id="jLabelInfo" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -109,11 +112,14 @@
                   <Component id="jLabelPerfil" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jButtonUserCreate" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jButtonUserRead" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jButtonUserUpdate" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jButtonUserDelete" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jButtonUserCreate" linkSize="2" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="jButtonUserRead" linkSize="2" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="jButtonUserUpdate" linkSize="2" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="jButtonUserDelete" linkSize="2" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="jButtonUserNew" linkSize="2" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace pref="173" max="32767" attributes="0"/>
           </Group>
@@ -238,12 +244,26 @@
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
       </AuxValues>
     </Component>
+    <Component class="javax.swing.JButton" name="jButtonUserNew">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/br/com/infox/icons/iconNew.png"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Iniciar novo usu&#xe1;rio"/>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="null"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonUserNewActionPerformed"/>
+      </Events>
+    </Component>
     <Component class="javax.swing.JButton" name="jButtonUserCreate">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/br/com/infox/icons/iconCreate.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Adicionar informa&#xe7;&#xf5;es de um usu&#xe1;rio"/>
+        <Property name="toolTipText" type="java.lang.String" value="Adicionar novo usu&#xe1;rio"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="null"/>
         </Property>
@@ -277,7 +297,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/br/com/infox/icons/iconUpdate.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Atualizar informa&#xe7;&#xf5;es de um usu&#xe1;rio"/>
+        <Property name="toolTipText" type="java.lang.String" value="Atualizar usu&#xe1;rio selecionado"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="null"/>
         </Property>
@@ -294,7 +314,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/br/com/infox/icons/iconDelete.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Apagar informa&#xe7;&#xf5;es de um usu&#xe1;rio"/>
+        <Property name="toolTipText" type="java.lang.String" value="Excluir um usu&#xe1;rio"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="null"/>
         </Property>

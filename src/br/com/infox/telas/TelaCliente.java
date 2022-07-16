@@ -1,16 +1,14 @@
 package br.com.infox.telas;
 
 import br.com.infox.dal.ModuloConexao;
+import static br.com.infox.dal.Tools.*;
 import net.proteanit.sql.DbUtils;
-import java.awt.HeadlessException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -28,28 +26,6 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		initComponents();
 	}
 
-	public static void setValues(PreparedStatement ps, Object... values) throws SQLException {
-		for (int i = 0; i < values.length; i++) {
-			ps.setObject(i + 1, values[i]);
-		}
-	}
-
-	public static void printSQLException(SQLException ex) {
-		for (Throwable e : ex) {
-			if (e instanceof SQLException) {
-				System.err.println("SQLState: " + ((SQLException) e).getSQLState());
-				System.err.println("Error Code: " + ((SQLException) e).getErrorCode());
-				System.err.println("Message: " + e.getMessage());
-				e.printStackTrace(System.err);
-				Throwable throwable = ex.getCause();
-				while (throwable != null) {
-					System.out.println("Cause: " + throwable);
-					throwable = throwable.getCause();
-				}
-			}
-		}
-	}
-
 	private void clearClientFields() {
 		jTextFieldIdClient.setText(null);
 		jTextFieldNome.setText(null);
@@ -60,18 +36,27 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		((DefaultTableModel) jTableClients.getModel()).setRowCount(0);
 	}
 
+	public void setFieldsClient() {
+		int set = jTableClients.getSelectedRow();
+		jTextFieldIdClient.setText(jTableClients.getModel().getValueAt(set, 0).toString());
+		jTextFieldNome.setText(jTableClients.getModel().getValueAt(set, 1).toString());
+		jTextFieldEndereco.setText(jTableClients.getModel().getValueAt(set, 2).toString());
+		jTextFieldTelefone.setText(jTableClients.getModel().getValueAt(set, 3).toString());
+		jTextFieldEmail.setText(jTableClients.getModel().getValueAt(set, 4).toString());
+		jButtonClientCreate.setEnabled(false);
+	}
+
 	//create
-	private void addOneClient() {
+	private void addClient() {
 		String insert = "INSERT INTO tbclientes"
 			+ " (nomecli,endcli,fonecli,emailcli) VALUES (?,?,?,?)";
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(insert,
 				Statement.RETURN_GENERATED_KEYS);
-			preparedStatement.setString(1, jTextFieldNome.getText());
-			preparedStatement.setString(2, jTextFieldEndereco.getText());
-			preparedStatement.setString(3, jTextFieldTelefone.getText());
-			preparedStatement.setString(4, jTextFieldEmail.getText());
+			setValues(preparedStatement, jTextFieldNome.getText(),
+				jTextFieldEndereco.getText(), jTextFieldTelefone.getText(),
+				jTextFieldEmail.getText());
 			int insertOk = preparedStatement.executeUpdate();
 			if (insertOk > 0) {
 				resultSet = preparedStatement.getGeneratedKeys();
@@ -85,46 +70,41 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			}
 		} catch (SQLException ex) {
 			printSQLException(ex);
-		} catch (HeadlessException ex) {
-			System.err.println("Error: " + ex.getMessage());
 		} finally {
 			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
 		}
 	}
 
 	//read
-	private void finderOneClientByName(String name) {
-		String select = "SELECT idcli AS ID, nomecli AS Nome, "
-			+ "endcli AS Endereço, fonecli AS Telefone, emailcli AS Email "
-			+ "FROM tbclientes WHERE lower(nomecli) LIKE lower(?)";
+	private void finderClientByNameOrEmail(String string) {
+		String select = "SELECT idcli AS ID, nomecli AS Nome, endcli AS Endereço, "
+			+ "fonecli AS Telefone, emailcli AS Email FROM tbclientes "
+			+ "WHERE lower(nomecli) LIKE lower(?) OR lower(emailcli) LIKE lower(?)";
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(select);
-			preparedStatement.setString(1, "%" + name + "%");
+			preparedStatement.setString(1, "%" + string + "%");
+			preparedStatement.setString(2, "%" + string + "%");
 			resultSet = preparedStatement.executeQuery();
 			jTableClients.setModel(DbUtils.resultSetToTableModel(resultSet));
-			resultSet.close();
-			preparedStatement.close();
 		} catch (SQLException ex) {
-			Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
+			printSQLException(ex);
 		} finally {
 			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
 		}
 	}
 
 	//update
-	private void updateOneClientById(Integer idClient) {
+	private void updateClientById(Integer idClient) {
 		String update = "UPDATE tbclientes SET "
 			+ "nomecli = ?, endcli = ?, fonecli = ?, emailcli = ? WHERE idcli = ?";
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(update,
 				ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			preparedStatement.setString(1, jTextFieldNome.getText());
-			preparedStatement.setString(2, jTextFieldEndereco.getText());
-			preparedStatement.setString(3, jTextFieldTelefone.getText());
-			preparedStatement.setString(4, jTextFieldEmail.getText());
-			preparedStatement.setInt(5, idClient);
+			setValues(preparedStatement, jTextFieldNome.getText(),
+				jTextFieldEndereco.getText(), jTextFieldTelefone.getText(),
+				jTextFieldEmail.getText(), idClient);
 			int updateOk = preparedStatement.executeUpdate();
 			if (updateOk > 0) {
 				JOptionPane.showMessageDialog(null,
@@ -132,15 +112,13 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			}
 		} catch (SQLException ex) {
 			printSQLException(ex);
-		} catch (HeadlessException ex) {
-			System.err.println("Error: " + ex.getMessage());
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			ModuloConexao.fecharConexao(connection, preparedStatement);
 		}
 	}
 
 	//delete
-	private void deleteOneClientById(Integer idClient) {
+	private void deleteClientById(Integer idClient) {
 		String delete = "DELETE FROM tbclientes WHERE idcli = ?";
 		connection = ModuloConexao.connection();
 		try {
@@ -154,18 +132,8 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			printSQLException(ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			ModuloConexao.fecharConexao(connection, preparedStatement);
 		}
-	}
-
-	public void setFieldsClient() {
-		int set = jTableClients.getSelectedRow();
-		jTextFieldIdClient.setText(jTableClients.getModel().getValueAt(set, 0).toString());
-		jTextFieldNome.setText(jTableClients.getModel().getValueAt(set, 1).toString());
-		jTextFieldEndereco.setText(jTableClients.getModel().getValueAt(set, 2).toString());
-		jTextFieldTelefone.setText(jTableClients.getModel().getValueAt(set, 3).toString());
-		jTextFieldEmail.setText(jTableClients.getModel().getValueAt(set, 4).toString());
-		jButtonClientCreate.setEnabled(false);
 	}
 
 	/**
@@ -187,6 +155,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
         jTextFieldTelefone = new javax.swing.JTextField();
         jLabelEmail = new javax.swing.JLabel();
         jTextFieldEmail = new javax.swing.JTextField();
+        jButtonClientNew = new javax.swing.JButton();
         jButtonClientCreate = new javax.swing.JButton();
         jButtonClientUpdate = new javax.swing.JButton();
         jButtonClientDelete = new javax.swing.JButton();
@@ -203,6 +172,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
         setTitle("Cadastro de Clientes");
         setPreferredSize(new java.awt.Dimension(650, 450));
 
+        jLabelIdClient.setLabelFor(jTextFieldIdClient);
         jLabelIdClient.setText("Id");
 
         jTextFieldIdClient.setEditable(false);
@@ -253,8 +223,17 @@ public class TelaCliente extends javax.swing.JInternalFrame {
             }
         });
 
+        jButtonClientNew.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconNew.png"))); // NOI18N
+        jButtonClientNew.setToolTipText("Iniciar novo cliente");
+        jButtonClientNew.setBorder(null);
+        jButtonClientNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonClientNewActionPerformed(evt);
+            }
+        });
+
         jButtonClientCreate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconCreate.png"))); // NOI18N
-        jButtonClientCreate.setToolTipText("Adicionar um cliente");
+        jButtonClientCreate.setToolTipText("Adicionar novo cliente");
         jButtonClientCreate.setBorder(null);
         jButtonClientCreate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonClientCreate.addActionListener(new java.awt.event.ActionListener() {
@@ -264,7 +243,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
         });
 
         jButtonClientUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconUpdate.png"))); // NOI18N
-        jButtonClientUpdate.setToolTipText("Atualizar um cliente");
+        jButtonClientUpdate.setToolTipText("Atualizar cliente selecionado");
         jButtonClientUpdate.setBorder(null);
         jButtonClientUpdate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonClientUpdate.addActionListener(new java.awt.event.ActionListener() {
@@ -286,7 +265,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
         jLabelPesquisar.setLabelFor(jTextFieldPesquisar);
         jLabelPesquisar.setText("Pesquisar");
 
-        jTextFieldPesquisar.setToolTipText("Pesquisar cliente por nome");
+        jTextFieldPesquisar.setToolTipText("Pesquisar cliente(s) por nome ou email");
         jTextFieldPesquisar.setPreferredSize(new java.awt.Dimension(256, 22));
         jTextFieldPesquisar.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -367,13 +346,6 @@ public class TelaCliente extends javax.swing.JInternalFrame {
                                 .addComponent(jTextFieldEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonClientCreate)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
-                        .addComponent(jButtonClientUpdate)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
-                        .addComponent(jButtonClientDelete)
-                        .addContainerGap(366, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(3, 3, 3)
@@ -387,16 +359,25 @@ public class TelaCliente extends javax.swing.JInternalFrame {
                                 .addComponent(jTextFieldIdClient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabelInfo))
-                            .addComponent(jScrollPaneClients)
+                            .addComponent(jScrollPaneClients, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jTextFieldPesquisar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabelPesquisarIcone)
                                 .addGap(0, 0, Short.MAX_VALUE)))
-                        .addGap(20, 20, 20))))
+                        .addGap(20, 20, 20))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButtonClientNew)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButtonClientCreate)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButtonClientUpdate)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButtonClientDelete)
+                        .addContainerGap())))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButtonClientCreate, jButtonClientDelete, jButtonClientUpdate});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButtonClientCreate, jButtonClientDelete, jButtonClientNew, jButtonClientUpdate});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -426,10 +407,11 @@ public class TelaCliente extends javax.swing.JInternalFrame {
                     .addComponent(jLabelEmail)
                     .addComponent(jTextFieldEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonClientCreate)
                     .addComponent(jButtonClientUpdate)
-                    .addComponent(jButtonClientDelete))
+                    .addComponent(jButtonClientDelete)
+                    .addComponent(jButtonClientNew))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextFieldPesquisar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -440,7 +422,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
                 .addGap(21, 21, 21))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButtonClientCreate, jButtonClientDelete, jButtonClientUpdate});
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButtonClientCreate, jButtonClientDelete, jButtonClientNew, jButtonClientUpdate});
 
         setBounds(0, 0, 650, 450);
     }// </editor-fold>//GEN-END:initComponents
@@ -469,7 +451,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		if (!jTextFieldNome.getText().isEmpty()
 			&& !jTextFieldTelefone.getText().isEmpty()
 			&& !jTextFieldEmail.getText().isEmpty()) {
-			addOneClient();
+			addClient();
 			clearClientFields();
 		} else {
 			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
@@ -480,7 +462,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		if (!jTextFieldNome.getText().isEmpty()
 			&& !jTextFieldTelefone.getText().isEmpty()
 			&& !jTextFieldEmail.getText().isEmpty()) {
-			updateOneClientById(Integer.parseInt(jTextFieldIdClient.getText()));
+			updateClientById(Integer.parseInt(jTextFieldIdClient.getText()));
 			clearClientFields();
 			jButtonClientCreate.setEnabled(true);
 		} else {
@@ -496,7 +478,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			int showConfirmDialog = JOptionPane.showConfirmDialog(null, message,
 				"EXCLUIR CLIENTE", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if (showConfirmDialog == JOptionPane.YES_OPTION) {
-				deleteOneClientById(idClient);
+				deleteClientById(idClient);
 				clearClientFields();
 				jButtonClientCreate.setEnabled(true);
 			} else {
@@ -509,7 +491,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jButtonClientDeleteActionPerformed
 
     private void jTextFieldPesquisarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldPesquisarKeyReleased
-		finderOneClientByName(this.jTextFieldPesquisar.getText());
+		finderClientByNameOrEmail(this.jTextFieldPesquisar.getText());
     }//GEN-LAST:event_jTextFieldPesquisarKeyReleased
 
     private void jTableClientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableClientsMouseClicked
@@ -520,9 +502,15 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		setFieldsClient();
     }//GEN-LAST:event_jTableClientsKeyReleased
 
+    private void jButtonClientNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonClientNewActionPerformed
+		clearClientFields();
+		jButtonClientCreate.setEnabled(true);
+    }//GEN-LAST:event_jButtonClientNewActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonClientCreate;
     private javax.swing.JButton jButtonClientDelete;
+    private javax.swing.JButton jButtonClientNew;
     private javax.swing.JButton jButtonClientUpdate;
     private javax.swing.JLabel jLabelEmail;
     private javax.swing.JLabel jLabelEndereco;
