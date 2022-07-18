@@ -23,6 +23,9 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 	private ResultSet resultSet;
 	private ResultSetMetaData resultSetMetaData;
 
+	String message = null, messageTitle = null;
+	int messageType = 0;
+
 	/**
 	 * Creates new form TelaUsuario
 	 */
@@ -265,6 +268,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
         jButtonUserNew.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconNew.png"))); // NOI18N
         jButtonUserNew.setToolTipText("Iniciar novo usuário");
         jButtonUserNew.setBorder(null);
+        jButtonUserNew.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonUserNew.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonUserNewActionPerformed(evt);
@@ -402,8 +406,10 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 
     private void jButtonUserReadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUserReadActionPerformed
 		String[] option = {"ID", "Login"};
-		String search = "", message = null, messageTitle = null;
-		int messageType = 0;
+		String search = "";
+		message = null;
+		messageTitle = null;
+		messageType = 0;
 		if (!jTextFieldIdUser.getText().isEmpty() ^ !jTextFieldLogin.getText().isEmpty()) {
 			if (!jTextFieldIdUser.getText().isEmpty()) {
 				search = option[0];
@@ -414,9 +420,8 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		} else if (jTextFieldIdUser.getText().isEmpty() && jTextFieldLogin.getText().isEmpty()) {
 			search = "";
 		} else if (!jTextFieldIdUser.getText().isEmpty() && !jTextFieldLogin.getText().isEmpty()) {
-			message = "Por qual parâmetro deve ser feita a pesquisa?";
-			messageTitle = "Parâmetro para Pesquisa";
-			int indexOption = JOptionPane.showOptionDialog(null, message, messageTitle,
+			int indexOption = JOptionPane.showOptionDialog(null, 
+				"Por qual parâmetro deve ser feita a pesquisa?", "Parâmetro para Pesquisa",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
 			if (indexOption == 0) {
 				search = option[0];
@@ -429,10 +434,11 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			case "ID":
 				if (isNumber(jTextFieldIdUser.getText())) {
 					boolean findUserById = finderUserById(Integer.parseInt(jTextFieldIdUser.getText()));
-					message = "Encontrado usuário! " + jTextFieldUsuario.getText();
-					messageTitle = "Resultado da pesquisa";
-					messageType = JOptionPane.INFORMATION_MESSAGE;
-					if (!findUserById) {
+					if (findUserById) {
+						message = "Encontrado usuário! " + jTextFieldUsuario.getText();
+						messageTitle = "Resultado da pesquisa";
+						messageType = JOptionPane.INFORMATION_MESSAGE;
+					} else {
 						message = "Usuário por id não encontrado!";
 						messageTitle = "Pesquisa por ID";
 						messageType = JOptionPane.WARNING_MESSAGE;
@@ -447,10 +453,11 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 				break;
 			case "Login":
 				boolean finderUserByLogin = finderUserByLogin(jTextFieldLogin.getText());
-				message = "Encontrado usuário! " + jTextFieldUsuario.getText();
-				messageTitle = "Resultado da pesquisa";
-				messageType = JOptionPane.INFORMATION_MESSAGE;
-				if (!finderUserByLogin) {
+				if (finderUserByLogin) {
+					message = "Encontrado usuário! " + jTextFieldUsuario.getText();
+					messageTitle = "Resultado da pesquisa";
+					messageType = JOptionPane.INFORMATION_MESSAGE;
+				} else {
 					message = "Usuário por login não encontrado!";
 					messageTitle = "Pesquisa por Login";
 					messageType = JOptionPane.WARNING_MESSAGE;
@@ -476,7 +483,8 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			addUser();
 			clearUserFields();
 		} else {
-			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
+			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!",
+				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonUserCreateActionPerformed
 
@@ -509,7 +517,8 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			updateUserById(Integer.parseInt(jTextFieldIdUser.getText()));
 			clearUserFields();
 		} else {
-			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
+			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!",
+				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonUserUpdateActionPerformed
 
@@ -517,9 +526,10 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		if (!jTextFieldIdUser.getText().isEmpty()) {
 			int idUser = Integer.parseInt(jTextFieldIdUser.getText());
 			String nameUser = jTextFieldUsuario.getText();
-			Object message = "Deseja remover '" + nameUser + "' id: " + idUser;
+			message = "Deseja remover '" + nameUser + "' id: " + idUser;
+			messageTitle = "EXCLUIR USUÁRIO";
 			int showConfirmDialog = JOptionPane.showConfirmDialog(null, message,
-				"EXCLUIR USUÁRIO", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				messageTitle, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if (showConfirmDialog == JOptionPane.YES_OPTION) {
 				deleteUserById(idUser);
 				clearUserFields();

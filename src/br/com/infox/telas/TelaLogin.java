@@ -2,6 +2,7 @@ package br.com.infox.telas;
 
 import br.com.infox.dal.ModuloConexao;
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,6 +20,7 @@ public class TelaLogin extends javax.swing.JFrame {
 
 	public void logar() {
 		String sql = "SELECT * FROM tbusuarios WHERE login = ? AND senha = ?";
+		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(sql);
 			preparedStatement.setString(1, this.jTextFieldLoginUsuario.getText());
@@ -36,27 +38,38 @@ public class TelaLogin extends javax.swing.JFrame {
 						this.dispose();
 						break;
 					case "user":
+						principal.setVisible(true);
 						TelaPrincipal.jMenuCadastroUsuarios.setEnabled(true);
 						TelaPrincipal.jLabelUserName.setForeground(Color.blue);
-						principal.setVisible(true);
 						this.dispose();
 						break;
 					case "guest":
-						TelaPrincipal.jLabelUserName.setForeground(Color.gray);
 						principal.setVisible(true);
+						TelaPrincipal.jLabelUserName.setForeground(Color.gray);
 						this.dispose();
 						break;
 					default:
 						throw new AssertionError();
 				}
-				resultSet.close();
-				preparedStatement.close();
-				connection.close();
 			} else {
-				JOptionPane.showMessageDialog(null, "Usuário e/ou senha inválido(s)!");
+				JOptionPane.showMessageDialog(null, "Usuário e/ou senha inválido(s)!",
+					"Autenticação inválida!", JOptionPane.WARNING_MESSAGE);
 			}
 		} catch (SQLException ex) {
 			Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
+		} finally {
+			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+		}
+	}
+
+	private void checkLoginData() {
+		if (!this.jTextFieldLoginUsuario.getText().isEmpty()
+			&& this.jPasswordFieldLoginSenha.getPassword().length > 0) {
+			logar();
+		} else {
+			JOptionPane.showMessageDialog(null,
+				"Necessário informar login e senha", "Dados necessários",
+				JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
@@ -64,8 +77,9 @@ public class TelaLogin extends javax.swing.JFrame {
 	 * Creates new form TelaLogin
 	 */
 	public TelaLogin() {
+		initComponents();
+		this.jTextFieldLoginUsuario.grabFocus();
 		try {
-			initComponents();
 			connection = ModuloConexao.connection();
 			if (connection != null) {
 				this.jLabelStatusConnection.setIcon(
@@ -78,6 +92,8 @@ public class TelaLogin extends javax.swing.JFrame {
 			}
 		} catch (Exception ex) {
 			Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
+		} finally {
+			ModuloConexao.fecharConexao(connection, null);
 		}
 	}
 
@@ -104,7 +120,19 @@ public class TelaLogin extends javax.swing.JFrame {
 
         jLabelLoginUsuario.setText("Usuário");
 
+        jTextFieldLoginUsuario.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextFieldLoginUsuarioKeyPressed(evt);
+            }
+        });
+
         jLabelLoginSenha.setText("Senha");
+
+        jPasswordFieldLoginSenha.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jPasswordFieldLoginSenhaKeyPressed(evt);
+            }
+        });
 
         btnLoginEntrar.setText("Entrar");
         btnLoginEntrar.addActionListener(new java.awt.event.ActionListener() {
@@ -159,8 +187,29 @@ public class TelaLogin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLoginEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginEntrarActionPerformed
-		logar();
+		checkLoginData();
     }//GEN-LAST:event_btnLoginEntrarActionPerformed
+
+    private void jPasswordFieldLoginSenhaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordFieldLoginSenhaKeyPressed
+		if (evt.getExtendedKeyCode() == KeyEvent.VK_ENTER) {
+			checkLoginData();
+		}
+		if (evt.getExtendedKeyCode() == KeyEvent.VK_ESCAPE) {
+			System.exit(0);
+		}
+    }//GEN-LAST:event_jPasswordFieldLoginSenhaKeyPressed
+
+    private void jTextFieldLoginUsuarioKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldLoginUsuarioKeyPressed
+		if (evt.getExtendedKeyCode() == KeyEvent.VK_ENTER) {
+			if (!this.jTextFieldLoginUsuario.getText().isEmpty()) {
+				this.jPasswordFieldLoginSenha.grabFocus();
+			} else {
+				JOptionPane.showMessageDialog(null,
+					"Necessário informar login do usuário", "Informar Login!",
+					JOptionPane.WARNING_MESSAGE);
+			}
+		}
+    }//GEN-LAST:event_jTextFieldLoginUsuarioKeyPressed
 
 	/**
 	 * @param args the command line arguments

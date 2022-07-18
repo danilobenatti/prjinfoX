@@ -108,7 +108,8 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			int updateOk = preparedStatement.executeUpdate();
 			if (updateOk > 0) {
 				JOptionPane.showMessageDialog(null,
-					"Cliente id(" + idClient + ") foi atualizado!");
+					"Cliente id(" + idClient + ") foi atualizado!", 
+					"Atualização realizada", JOptionPane.INFORMATION_MESSAGE);
 			}
 		} catch (SQLException ex) {
 			printSQLException(ex);
@@ -226,6 +227,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
         jButtonClientNew.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconNew.png"))); // NOI18N
         jButtonClientNew.setToolTipText("Iniciar novo cliente");
         jButtonClientNew.setBorder(null);
+        jButtonClientNew.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonClientNew.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonClientNewActionPerformed(evt);
@@ -454,7 +456,8 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			addClient();
 			clearClientFields();
 		} else {
-			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
+			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!", 
+				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonClientCreateActionPerformed
 
@@ -466,7 +469,8 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			clearClientFields();
 			jButtonClientCreate.setEnabled(true);
 		} else {
-			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!");
+			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!", 
+				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonClientUpdateActionPerformed
 
@@ -482,11 +486,13 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 				clearClientFields();
 				jButtonClientCreate.setEnabled(true);
 			} else {
-				JOptionPane.showMessageDialog(null, "Operação de exclusão cancelada");
+				JOptionPane.showMessageDialog(null, "Operação de exclusão cancelada",
+					"Operação cancelada", JOptionPane.INFORMATION_MESSAGE);
 			}
 		} else {
 			JOptionPane.showMessageDialog(null, "Para excluir um cliente "
-				+ "é necessário informar o id.");
+				+ "é necessário informar o id.", "Campos obrigatórios", 
+				JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonClientDeleteActionPerformed
 
