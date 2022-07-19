@@ -31,6 +31,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 	 */
 	public TelaUsuario() {
 		initComponents();
+		clearUserFields();
 	}
 
 	private void clearUserFields() {

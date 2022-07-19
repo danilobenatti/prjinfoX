@@ -223,6 +223,7 @@
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
             <Property name="horizontalAlignment" type="int" value="0"/>
+            <Property name="text" type="java.lang.String" value="0001"/>
             <Property name="toolTipText" type="java.lang.String" value="N&#xfa;mero da OS"/>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[65, 22]"/>
@@ -503,7 +504,7 @@
     <Component class="javax.swing.JFormattedTextField" name="jFormattedTextFieldValorTotal">
       <Properties>
         <Property name="horizontalAlignment" type="int" value="4"/>
-        <Property name="toolTipText" type="java.lang.String" value="Valor do servi&#xe7;o, exemplo: 2.500,50"/>
+        <Property name="toolTipText" type="java.lang.String" value="Valor do servi&#xe7;o, somente n&#xfa;meros, Ex.: 2.500,50"/>
       </Properties>
       <Events>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jFormattedTextFieldValorTotalFocusGained"/>
@@ -514,7 +515,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/br/com/infox/icons/iconNew.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Nova OS"/>
+        <Property name="toolTipText" type="java.lang.String" value="Iniciar novo cadastro de OS"/>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
           <Color id="Hand Cursor"/>
         </Property>
@@ -531,7 +532,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/br/com/infox/icons/iconCreate.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Salvar OS"/>
+        <Property name="toolTipText" type="java.lang.String" value="Salvar novo cadastro de OS"/>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
           <Color id="Hand Cursor"/>
         </Property>
@@ -548,7 +549,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/br/com/infox/icons/iconRead.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Buscar OS"/>
+        <Property name="toolTipText" type="java.lang.String" value="Buscar um cadastro de OS"/>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
           <Color id="Hand Cursor"/>
         </Property>
@@ -565,7 +566,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/br/com/infox/icons/iconUpdate.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Atualizar OS"/>
+        <Property name="toolTipText" type="java.lang.String" value="Atualizar um cadastro de OS"/>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
           <Color id="Hand Cursor"/>
         </Property>
@@ -579,7 +580,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/br/com/infox/icons/iconDelete.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Excluir OS"/>
+        <Property name="toolTipText" type="java.lang.String" value="Excluir um cadastro de OS"/>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
           <Color id="Hand Cursor"/>
         </Property>
@@ -593,7 +594,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/br/com/infox/icons/iconPrint.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Imprimir OS"/>
+        <Property name="toolTipText" type="java.lang.String" value="Imprimir o cadastro de OS"/>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
           <Color id="Hand Cursor"/>
         </Property>

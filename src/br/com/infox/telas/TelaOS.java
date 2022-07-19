@@ -11,13 +11,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.text.NumberFormat;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.NumberFormatter;
 import net.proteanit.sql.DbUtils;
 
 public class TelaOS extends javax.swing.JInternalFrame {
@@ -29,14 +27,18 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	private String tipo;
 	private String status;
 
+	Locale locale = new Locale("pt", "BR");
 	SimpleDateFormat dateFormat
-		= new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
+		= new SimpleDateFormat("dd/MM/yyyy", locale);
+	NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+	NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
 
 	/**
 	 * Creates new form TelaOS
 	 */
 	public TelaOS() {
 		initComponents();
+		clearOSFields();
 	}
 
 	private void clearOSFields() {
@@ -46,7 +48,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 		jTextFieldPesquisaCliente.setText(null);
 		jTextFieldClienteId.setText(null);
 		((DefaultTableModel) jTableClients.getModel()).setRowCount(0);
-		jComboBoxStatusOS.setSelectedIndex(1);
+		jComboBoxStatusOS.setSelectedIndex(0);
 		jTextFieldEquipamentoOS.setText(null);
 		jTextFieldDefeitoOS.setText(null);
 		jTextFieldServicoOS.setText(null);
@@ -55,9 +57,16 @@ public class TelaOS extends javax.swing.JInternalFrame {
 
 	}
 
+	
+	/*
+	jTextFieldIdClient.setText(
+			String.format("%04d", jTableClients.getModel().getValueAt(set, 0)));
+	*/
+	
 	public void setFieldsClient() {
 		int set = jTableClients.getSelectedRow();
-		jTextFieldClienteId.setText(jTableClients.getModel().getValueAt(set, 0).toString());
+		jTextFieldClienteId.setText(
+			String.format("%04d", jTableClients.getModel().getValueAt(set, 0)));
 		jTextFieldPesquisaCliente.setText(jTableClients.getModel().getValueAt(set, 1).toString());
 		finderClientById(Integer.parseInt(jTextFieldClienteId.getText()));
 	}
@@ -142,7 +151,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			preparedStatement.setInt(1, id);
 			resultSet = preparedStatement.executeQuery();
 			if (resultSet.next()) {
-				jTextFieldNumeroOS.setText(resultSet.getString("idos"));
+				jTextFieldNumeroOS.setText(
+					String.format("%04d", resultSet.getInt("idos")));
 				jTextFieldDataOS.setText(
 					dateFormat.format(resultSet.getDate("data_os")));
 				String rbtTipo = resultSet.getString("tipo");
@@ -164,8 +174,9 @@ public class TelaOS extends javax.swing.JInternalFrame {
 				jTextFieldServicoOS.setText(resultSet.getString("servico"));
 				jTextFieldTecnicoOS.setText(resultSet.getString("tecnico"));
 				jFormattedTextFieldValorTotal.setValue(
-					NumberFormat.getCurrencyInstance().format(resultSet.getLong("valor")));
-				jTextFieldClienteId.setText(resultSet.getString("idcli"));
+					currencyFormat.format(resultSet.getDouble("valor")));
+				jTextFieldClienteId.setText(
+					String.format("%04d", resultSet.getInt("idcli")));
 			} else {
 				JOptionPane.showMessageDialog(null,
 					"Ordem de serviço não encontrada", "Pesquisa de OS",
@@ -255,6 +266,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 
         jTextFieldNumeroOS.setEditable(false);
         jTextFieldNumeroOS.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTextFieldNumeroOS.setText("0001");
         jTextFieldNumeroOS.setToolTipText("Número da OS");
         jTextFieldNumeroOS.setPreferredSize(new java.awt.Dimension(65, 22));
 
@@ -461,7 +473,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
         jLabelValorTotal.setText("Valor Total");
 
         jFormattedTextFieldValorTotal.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jFormattedTextFieldValorTotal.setToolTipText("Valor do serviço, exemplo: 2.500,50");
+        jFormattedTextFieldValorTotal.setToolTipText("Valor do serviço, somente números, Ex.: 2.500,50");
         jFormattedTextFieldValorTotal.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 jFormattedTextFieldValorTotalFocusGained(evt);
@@ -469,7 +481,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
         });
 
         jButtonOSNew.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconNew.png"))); // NOI18N
-        jButtonOSNew.setToolTipText("Nova OS");
+        jButtonOSNew.setToolTipText("Iniciar novo cadastro de OS");
         jButtonOSNew.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonOSNew.setPreferredSize(new java.awt.Dimension(64, 64));
         jButtonOSNew.addActionListener(new java.awt.event.ActionListener() {
@@ -479,7 +491,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
         });
 
         jButtonOSCreate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconCreate.png"))); // NOI18N
-        jButtonOSCreate.setToolTipText("Salvar OS");
+        jButtonOSCreate.setToolTipText("Salvar novo cadastro de OS");
         jButtonOSCreate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonOSCreate.setPreferredSize(new java.awt.Dimension(64, 64));
         jButtonOSCreate.addActionListener(new java.awt.event.ActionListener() {
@@ -489,7 +501,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
         });
 
         jButtonOSRead.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconRead.png"))); // NOI18N
-        jButtonOSRead.setToolTipText("Buscar OS");
+        jButtonOSRead.setToolTipText("Buscar um cadastro de OS");
         jButtonOSRead.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonOSRead.setPreferredSize(new java.awt.Dimension(64, 64));
         jButtonOSRead.addActionListener(new java.awt.event.ActionListener() {
@@ -499,17 +511,17 @@ public class TelaOS extends javax.swing.JInternalFrame {
         });
 
         jButtonOSUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconUpdate.png"))); // NOI18N
-        jButtonOSUpdate.setToolTipText("Atualizar OS");
+        jButtonOSUpdate.setToolTipText("Atualizar um cadastro de OS");
         jButtonOSUpdate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonOSUpdate.setPreferredSize(new java.awt.Dimension(64, 64));
 
         jButtonOSDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconDelete.png"))); // NOI18N
-        jButtonOSDelete.setToolTipText("Excluir OS");
+        jButtonOSDelete.setToolTipText("Excluir um cadastro de OS");
         jButtonOSDelete.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonOSDelete.setPreferredSize(new java.awt.Dimension(64, 64));
 
         jButtonOSPrint.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconPrint.png"))); // NOI18N
-        jButtonOSPrint.setToolTipText("Imprimir OS");
+        jButtonOSPrint.setToolTipText("Imprimir o cadastro de OS");
         jButtonOSPrint.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonOSPrint.setPreferredSize(new java.awt.Dimension(64, 64));
 

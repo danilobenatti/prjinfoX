@@ -24,6 +24,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 	 */
 	public TelaCliente() {
 		initComponents();
+		clearClientFields();
 	}
 
 	private void clearClientFields() {
@@ -38,7 +39,8 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 
 	public void setFieldsClient() {
 		int set = jTableClients.getSelectedRow();
-		jTextFieldIdClient.setText(jTableClients.getModel().getValueAt(set, 0).toString());
+		jTextFieldIdClient.setText(
+			String.format("%04d", jTableClients.getModel().getValueAt(set, 0)));
 		jTextFieldNome.setText(jTableClients.getModel().getValueAt(set, 1).toString());
 		jTextFieldEndereco.setText(jTableClients.getModel().getValueAt(set, 2).toString());
 		jTextFieldTelefone.setText(jTableClients.getModel().getValueAt(set, 3).toString());
@@ -108,7 +110,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			int updateOk = preparedStatement.executeUpdate();
 			if (updateOk > 0) {
 				JOptionPane.showMessageDialog(null,
-					"Cliente id(" + idClient + ") foi atualizado!", 
+					"Cliente id(" + idClient + ") foi atualizado!",
 					"Atualização realizada", JOptionPane.INFORMATION_MESSAGE);
 			}
 		} catch (SQLException ex) {
@@ -178,6 +180,8 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 
         jTextFieldIdClient.setEditable(false);
         jTextFieldIdClient.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTextFieldIdClient.setText("0001");
+        jTextFieldIdClient.setToolTipText("Número ID do cliente");
         jTextFieldIdClient.setPreferredSize(new java.awt.Dimension(100, 22));
 
         jLabelNome.setLabelFor(jLabelNome);
@@ -301,13 +305,21 @@ public class TelaCliente extends javax.swing.JInternalFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
         });
+        jTableClients.setToolTipText("Resultado da pesquisa por cliente");
         jTableClients.setFocusable(false);
         jTableClients.getTableHeader().setReorderingAllowed(false);
         jTableClients.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -456,7 +468,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			addClient();
 			clearClientFields();
 		} else {
-			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!", 
+			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!",
 				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonClientCreateActionPerformed
@@ -469,7 +481,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			clearClientFields();
 			jButtonClientCreate.setEnabled(true);
 		} else {
-			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!", 
+			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!",
 				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonClientUpdateActionPerformed
@@ -491,7 +503,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 			}
 		} else {
 			JOptionPane.showMessageDialog(null, "Para excluir um cliente "
-				+ "é necessário informar o id.", "Campos obrigatórios", 
+				+ "é necessário informar o id.", "Campos obrigatórios",
 				JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonClientDeleteActionPerformed
