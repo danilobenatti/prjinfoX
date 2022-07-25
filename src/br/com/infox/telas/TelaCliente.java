@@ -51,7 +51,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 	//create
 	private void addClient() {
 		String insert = "INSERT INTO tbclientes"
-			+ " (nomecli,endcli,fonecli,emailcli) VALUES (?,?,?,?)";
+			+ " (nomecli, endcli, fonecli, emailcli) VALUES (?, ?, ?, ?)";
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(insert,

@@ -504,7 +504,7 @@
     <Component class="javax.swing.JFormattedTextField" name="jFormattedTextFieldValorTotal">
       <Properties>
         <Property name="horizontalAlignment" type="int" value="4"/>
-        <Property name="toolTipText" type="java.lang.String" value="Valor do servi&#xe7;o, somente n&#xfa;meros, Ex.: 2.500,50"/>
+        <Property name="toolTipText" type="java.lang.String" value="Valor do servi&#xe7;o em Reais, Ex.: 2.500,50 ou 2500,00"/>
       </Properties>
       <Events>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jFormattedTextFieldValorTotalFocusGained"/>
@@ -574,6 +574,9 @@
           <Dimension value="[64, 64]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonOSUpdateActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonOSDelete">
       <Properties>

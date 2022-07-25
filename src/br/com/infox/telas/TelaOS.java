@@ -5,6 +5,7 @@ import static br.com.infox.dal.ModuloConexao.fecharConexao;
 import static br.com.infox.dal.Tools.printSQLException;
 import static br.com.infox.dal.Tools.setValues;
 import static br.com.infox.dal.Tools.isNumber;
+import static br.com.infox.dal.Tools.parseFormat;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +15,9 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import net.proteanit.sql.DbUtils;
@@ -28,8 +32,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	private String status;
 
 	Locale locale = new Locale("pt", "BR");
-	SimpleDateFormat dateFormat
-		= new SimpleDateFormat("dd/MM/yyyy", locale);
+	SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", locale);
 	NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 	NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
 
@@ -54,15 +57,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
 		jTextFieldServicoOS.setText(null);
 		jTextFieldTecnicoOS.setText(null);
 		jFormattedTextFieldValorTotal.setText("0,00");
-
 	}
 
-	
-	/*
-	jTextFieldIdClient.setText(
-			String.format("%04d", jTableClients.getModel().getValueAt(set, 0)));
-	*/
-	
 	public void setFieldsClient() {
 		int set = jTableClients.getSelectedRow();
 		jTextFieldClienteId.setText(
@@ -94,7 +90,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 					System.out.printf("%s: %s\n",
 						resultSetMetaData.getColumnName(1), resultSet.getInt(1));
 					JOptionPane.showMessageDialog(null,
-						"OS id(" + resultSet.getInt(1) + ") foi adicionado!");
+						"OS id(" + resultSet.getInt(1) + ") adicionada com sucesso!");
 				}
 			}
 		} catch (SQLException ex) {
@@ -140,6 +136,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 		}
 	}
 
+	//read - Ordem de Serviço OS por id
 	private boolean finderOSById(int id) {
 		String select = "SELECT idos, data_os, tipo, status, equipamento, "
 			+ "defeito, servico, tecnico, valor, idcli "
@@ -189,6 +186,38 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
 		}
 		return searchOS;
+	}
+
+	//update - OS por id
+	private void updateOSById(int id) {
+		String update = "UPDATE tbos SET tipo = ?, status = ?, equipamento = ?, "
+			+ "defeito = ?, servico = ?, tecnico = ?, valor = ? WHERE idos= ?";
+		connection = ModuloConexao.connection();
+		try {
+			connection.setAutoCommit(false);
+			preparedStatement = connection.prepareStatement(update);
+			setValues(preparedStatement, tipo, jComboBoxStatusOS.getSelectedIndex(),
+				jTextFieldEquipamentoOS.getText(), jTextFieldDefeitoOS.getText(),
+				jTextFieldServicoOS.getText(), jTextFieldTecnicoOS.getText(),
+				parseFormat(jFormattedTextFieldValorTotal.getText(), locale),
+				Integer.parseInt(jTextFieldNumeroOS.getText()));
+			int updateOk = preparedStatement.executeUpdate();
+			if (updateOk > 0) {
+				connection.commit();
+				JOptionPane.showMessageDialog(null,
+					"OS alterada com sucesso!");
+			} else {
+				connection.rollback();
+				JOptionPane.showMessageDialog(null,
+					"Alteração de OS não realizada!");
+			}
+		} catch (SQLException ex) {
+			printSQLException(ex);
+		} catch (ParseException ex) {
+			Logger.getLogger(TelaOS.class.getName()).log(Level.SEVERE, null, ex);
+		} finally {
+			ModuloConexao.fecharConexao(connection, preparedStatement);
+		}
 	}
 
 	/**
@@ -473,7 +502,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
         jLabelValorTotal.setText("Valor Total");
 
         jFormattedTextFieldValorTotal.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        jFormattedTextFieldValorTotal.setToolTipText("Valor do serviço, somente números, Ex.: 2.500,50");
+        jFormattedTextFieldValorTotal.setToolTipText("Valor do serviço em Reais, Ex.: 2.500,50 ou 2500,00");
         jFormattedTextFieldValorTotal.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 jFormattedTextFieldValorTotalFocusGained(evt);
@@ -514,6 +543,11 @@ public class TelaOS extends javax.swing.JInternalFrame {
         jButtonOSUpdate.setToolTipText("Atualizar um cadastro de OS");
         jButtonOSUpdate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonOSUpdate.setPreferredSize(new java.awt.Dimension(64, 64));
+        jButtonOSUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonOSUpdateActionPerformed(evt);
+            }
+        });
 
         jButtonOSDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconDelete.png"))); // NOI18N
         jButtonOSDelete.setToolTipText("Excluir um cadastro de OS");
@@ -712,6 +746,20 @@ public class TelaOS extends javax.swing.JInternalFrame {
 				"Pesquisar OS", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonOSReadActionPerformed
+
+    private void jButtonOSUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOSUpdateActionPerformed
+		if (!jTextFieldClienteId.getText().isEmpty()
+			&& !jTextFieldEquipamentoOS.getText().isEmpty()
+			&& !jTextFieldDefeitoOS.getText().isEmpty()) {
+			updateOSById(Integer.parseInt(jTextFieldNumeroOS.getText()));
+			clearOSFields();
+			jButtonOSCreate.setEnabled(true);
+			jTextFieldPesquisaCliente.setEnabled(true);
+		} else {
+			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!",
+				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
+		}
+    }//GEN-LAST:event_jButtonOSUpdateActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupTipoOS;
