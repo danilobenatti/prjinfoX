@@ -79,8 +79,9 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			setValues(preparedStatement, tipo, jComboBoxStatusOS.getSelectedIndex(),
 				jTextFieldEquipamentoOS.getText(), jTextFieldDefeitoOS.getText(),
 				jTextFieldServicoOS.getText(), jTextFieldTecnicoOS.getText(),
-				Double.parseDouble(jFormattedTextFieldValorTotal
-					.getText().replace(".", "").replace(",", ".")),
+				(jFormattedTextFieldValorTotal.getText().isEmpty()
+				|| jFormattedTextFieldValorTotal.getText() == null) ? 0.00
+				: parseFormat(jFormattedTextFieldValorTotal.getText(), locale),
 				Integer.parseInt(jTextFieldClienteId.getText()));
 			int insertOk = preparedStatement.executeUpdate();
 			if (insertOk > 0) {
@@ -95,6 +96,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			}
 		} catch (SQLException ex) {
 			printSQLException(ex);
+		} catch (ParseException ex) {
+			Logger.getLogger(TelaOS.class.getName()).log(Level.SEVERE, null, ex);
 		} finally {
 			fecharConexao(connection, preparedStatement, resultSet);
 		}
