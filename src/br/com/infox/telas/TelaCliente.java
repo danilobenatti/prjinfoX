@@ -1,5 +1,6 @@
 package br.com.infox.telas;
 
+import static br.com.infox.dal.ModuloConexao.fecharConexao;
 import br.com.infox.dal.ModuloConexao;
 import static br.com.infox.dal.Tools.*;
 import net.proteanit.sql.DbUtils;
@@ -73,7 +74,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			printSQLException(ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			fecharConexao(connection, preparedStatement, resultSet);
 		}
 	}
 
@@ -92,7 +93,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			printSQLException(ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			fecharConexao(connection, preparedStatement, resultSet);
 		}
 	}
 
@@ -116,7 +117,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			printSQLException(ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement);
+			fecharConexao(connection, preparedStatement);
 		}
 	}
 
@@ -135,7 +136,7 @@ public class TelaCliente extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			printSQLException(ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement);
+			fecharConexao(connection, preparedStatement);
 		}
 	}
 

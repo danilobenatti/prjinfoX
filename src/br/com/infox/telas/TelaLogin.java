@@ -1,6 +1,7 @@
 package br.com.infox.telas;
 
 import br.com.infox.dal.ModuloConexao;
+import static br.com.infox.dal.ModuloConexao.fecharConexao;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
@@ -58,7 +59,7 @@ public class TelaLogin extends javax.swing.JFrame {
 		} catch (SQLException ex) {
 			Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			fecharConexao(connection, preparedStatement, resultSet);
 		}
 	}
 
@@ -93,7 +94,7 @@ public class TelaLogin extends javax.swing.JFrame {
 		} catch (Exception ex) {
 			Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, null);
+			fecharConexao(connection, null);
 		}
 	}
 

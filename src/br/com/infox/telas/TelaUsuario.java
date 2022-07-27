@@ -1,9 +1,8 @@
 package br.com.infox.telas;
 
 import br.com.infox.dal.ModuloConexao;
-import static br.com.infox.dal.Tools.isNumber;
-import static br.com.infox.dal.Tools.setValues;
-import static br.com.infox.dal.Tools.printSQLException;
+import static br.com.infox.dal.ModuloConexao.fecharConexao;
+import static br.com.infox.dal.Tools.*;
 import java.awt.HeadlessException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -70,7 +69,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			printSQLException(ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			fecharConexao(connection, preparedStatement, resultSet);
 		}
 	}
 
@@ -95,7 +94,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			fecharConexao(connection, preparedStatement, resultSet);
 		}
 		return findUser;
 	}
@@ -121,7 +120,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement, resultSet);
+			fecharConexao(connection, preparedStatement, resultSet);
 		}
 		return findUser;
 	}
@@ -151,7 +150,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		} catch (HeadlessException ex) {
 			System.err.println("Error: " + ex.getMessage());
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement);
+			fecharConexao(connection, preparedStatement);
 		}
 	}
 
@@ -170,7 +169,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 		} catch (SQLException ex) {
 			printSQLException(ex);
 		} finally {
-			ModuloConexao.fecharConexao(connection, preparedStatement);
+			fecharConexao(connection, preparedStatement);
 		}
 	}
 
