@@ -9,10 +9,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -30,7 +33,9 @@ public class TelaOS extends javax.swing.JInternalFrame {
 
 	Locale locale = new Locale("pt", "BR");
 	SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", locale);
-	NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+	Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo"));
+	DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(
+		DateFormat.MEDIUM, DateFormat.SHORT, locale);
 	NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
 
 	/**
@@ -48,12 +53,16 @@ public class TelaOS extends javax.swing.JInternalFrame {
 		jTextFieldPesquisaCliente.setText(null);
 		jTextFieldClienteId.setText(null);
 		((DefaultTableModel) jTableClients.getModel()).setRowCount(0);
-		jComboBoxStatusOS.setSelectedIndex(0);
+		jComboBoxStatusOS.setSelectedIndex(-1);
 		jTextFieldEquipamentoOS.setText(null);
 		jTextFieldDefeitoOS.setText(null);
 		jTextFieldServicoOS.setText(null);
 		jTextFieldTecnicoOS.setText(null);
 		jFormattedTextFieldValorTotal.setText("0,00");
+		jTextFieldDateUpdateOS.setText(null);
+		jButtonOSUpdate.setEnabled(false);
+		jButtonOSDelete.setEnabled(false);
+		jButtonOSPrint.setEnabled(false);
 	}
 
 	public void setFieldsClient() {
@@ -64,7 +73,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 		finderClientById(Integer.parseInt(jTextFieldClienteId.getText()));
 	}
 
-	//create
+	//create - Ordem de Serviço [OS]
 	private void addOS() {
 		String insert = "INSERT INTO tbos "
 			+ "(tipo, status, equipamento, defeito, servico, tecnico, valor, idcli) "
@@ -74,8 +83,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			preparedStatement = connection.prepareStatement(insert,
 				Statement.RETURN_GENERATED_KEYS);
 			setValues(preparedStatement, tipo, jComboBoxStatusOS.getSelectedIndex(),
-				jTextFieldEquipamentoOS.getText(), jTextFieldDefeitoOS.getText(),
-				jTextFieldServicoOS.getText(), jTextFieldTecnicoOS.getText(),
+				jTextFieldEquipamentoOS.getText().trim(), jTextFieldDefeitoOS.getText().trim(),
+				jTextFieldServicoOS.getText().trim(), jTextFieldTecnicoOS.getText().trim(),
 				(jFormattedTextFieldValorTotal.getText().isEmpty()
 				|| jFormattedTextFieldValorTotal.getText() == null) ? 0.00
 				: parseFormat(jFormattedTextFieldValorTotal.getText(), locale),
@@ -140,7 +149,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	//read - Ordem de Serviço [OS] por id
 	private boolean finderOSById(int id) {
 		String select = "SELECT idos, data_os, tipo, status, equipamento, "
-			+ "defeito, servico, tecnico, valor, idcli "
+			+ "defeito, servico, tecnico, valor, idcli, data_up "
 			+ "FROM dbinfox.tbos WHERE idos = ?";
 		boolean searchOS = true;
 		connection = ModuloConexao.connection();
@@ -175,6 +184,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
 					currencyFormat.format(resultSet.getDouble("valor")));
 				jTextFieldClienteId.setText(
 					String.format("%04d", resultSet.getInt("idcli")));
+				jTextFieldDateUpdateOS.setText(
+					dateTimeFormat.format(resultSet.getTimestamp("data_up", calendar)));
 			} else {
 				searchOS = false; // OS não encontrada
 			}
@@ -195,17 +206,16 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			connection.setAutoCommit(false);
 			preparedStatement = connection.prepareStatement(update);
 			setValues(preparedStatement, tipo, jComboBoxStatusOS.getSelectedIndex(),
-				jTextFieldEquipamentoOS.getText(), jTextFieldDefeitoOS.getText(),
-				jTextFieldServicoOS.getText(), jTextFieldTecnicoOS.getText(),
+				jTextFieldEquipamentoOS.getText().trim(), jTextFieldDefeitoOS.getText().trim(),
+				jTextFieldServicoOS.getText().trim(), jTextFieldTecnicoOS.getText().trim(),
 				parseFormat(jFormattedTextFieldValorTotal.getText(), locale), id);
 			int updateOk = preparedStatement.executeUpdate();
 			if (updateOk > 0) {
 				connection.commit();
-				JOptionPane.showMessageDialog(null, "OS alterada com sucesso!");
+				JOptionPane.showMessageDialog(null, "OS alterada com sucesso.");
 			} else {
 				connection.rollback();
-				JOptionPane.showMessageDialog(null,
-					"Alteração de OS não realizada!");
+				JOptionPane.showMessageDialog(null, "Alteração de OS não realizada.");
 			}
 		} catch (SQLException ex) {
 			printSQLException(ex);
@@ -255,6 +265,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
         jRadioButtonOrdemServ = new javax.swing.JRadioButton();
         jLabelStatusOS = new javax.swing.JLabel();
         jComboBoxStatusOS = new javax.swing.JComboBox<>();
+        jLabelDateUpdateOS = new javax.swing.JLabel();
+        jTextFieldDateUpdateOS = new javax.swing.JTextField();
         jPanelCliente = new javax.swing.JPanel();
         jLabelPesquisaCliente = new javax.swing.JLabel();
         jTextFieldPesquisaCliente = new javax.swing.JTextField();
@@ -381,10 +393,18 @@ public class TelaOS extends javax.swing.JInternalFrame {
         );
 
         jLabelStatusOS.setLabelFor(jComboBoxStatusOS);
-        jLabelStatusOS.setText("Situação");
+        jLabelStatusOS.setText("* Situação");
 
         jComboBoxStatusOS.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Na bancada [0]", "Aguardando Aprovação [1]", "Aguardando Peça [2]", "Entrega OK [3]", "Orçamento Reprovado [4]", "Abandonado pelo cliente [5]", "Retornou [6]" }));
-        jComboBoxStatusOS.setToolTipText("Status atual da OS");
+        jComboBoxStatusOS.setSelectedIndex(-1);
+        jComboBoxStatusOS.setToolTipText("Informe status atual da OS");
+
+        jLabelDateUpdateOS.setLabelFor(jTextFieldDateUpdateOS);
+        jLabelDateUpdateOS.setText("Atualização");
+        jLabelDateUpdateOS.setToolTipText("Data da última modificação");
+
+        jTextFieldDateUpdateOS.setEditable(false);
+        jTextFieldDateUpdateOS.setHorizontalAlignment(javax.swing.JTextField.CENTER);
 
         jPanelCliente.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Cliente"));
 
@@ -453,7 +473,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
                         .addComponent(jLabelPesquisaCliente)
                         .addGap(30, 30, 30)
                         .addComponent(jLabelClienteId)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 13, Short.MAX_VALUE)
                         .addComponent(jTextFieldClienteId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -558,6 +578,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
         jButtonOSUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconUpdate.png"))); // NOI18N
         jButtonOSUpdate.setToolTipText("Atualizar um cadastro de OS");
         jButtonOSUpdate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButtonOSUpdate.setEnabled(false);
         jButtonOSUpdate.setPreferredSize(new java.awt.Dimension(64, 64));
         jButtonOSUpdate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -568,6 +589,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
         jButtonOSDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconDelete.png"))); // NOI18N
         jButtonOSDelete.setToolTipText("Excluir um cadastro de OS");
         jButtonOSDelete.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButtonOSDelete.setEnabled(false);
         jButtonOSDelete.setPreferredSize(new java.awt.Dimension(64, 64));
         jButtonOSDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -578,6 +600,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
         jButtonOSPrint.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconPrint.png"))); // NOI18N
         jButtonOSPrint.setToolTipText("Imprimir o cadastro de OS");
         jButtonOSPrint.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButtonOSPrint.setEnabled(false);
         jButtonOSPrint.setPreferredSize(new java.awt.Dimension(64, 64));
 
         jLabelInfo.setText("* Campos obrigatórios");
@@ -592,12 +615,16 @@ public class TelaOS extends javax.swing.JInternalFrame {
                     .addComponent(jSeparatorFormOS)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jPanelOS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabelStatusOS)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabelStatusOS)
+                                    .addComponent(jLabelDateUpdateOS))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jComboBoxStatusOS, 0, 1, Short.MAX_VALUE))
-                            .addComponent(jPanelOS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jTextFieldDateUpdateOS)
+                                    .addComponent(jComboBoxStatusOS, 0, 1, Short.MAX_VALUE))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 15, Short.MAX_VALUE)
                         .addComponent(jPanelCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -639,14 +666,18 @@ public class TelaOS extends javax.swing.JInternalFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(17, 17, 17)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanelCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanelOS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabelStatusOS)
-                            .addComponent(jComboBoxStatusOS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jComboBoxStatusOS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextFieldDateUpdateOS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabelDateUpdateOS))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparatorFormOS, javax.swing.GroupLayout.PREFERRED_SIZE, 3, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -693,7 +724,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 		if (!clientName.isEmpty()) {
 			finderClientByName(jTextFieldPesquisaCliente.getText());
 		} else {
-			JOptionPane.showMessageDialog(null, "Necessário informar alguma parte do nome",
+			JOptionPane.showMessageDialog(null, "Necessário informar alguma parte do nome.",
 				"Pesquisa de Cliente", JOptionPane.WARNING_MESSAGE);
 			jTextFieldPesquisaCliente.setText(null);
 			((DefaultTableModel) jTableClients.getModel()).setRowCount(0);
@@ -720,7 +751,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
     private void jButtonOSCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOSCreateActionPerformed
 		if (!jTextFieldClienteId.getText().isEmpty()
 			&& !jTextFieldEquipamentoOS.getText().isEmpty()
-			&& !jTextFieldDefeitoOS.getText().isEmpty()) {
+			&& !jTextFieldDefeitoOS.getText().isEmpty()
+			&& jComboBoxStatusOS.getSelectedIndex() != -1) {
 			addOS();
 			clearOSFields();
 		} else {
@@ -759,7 +791,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
     private void jButtonOSReadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOSReadActionPerformed
 		clearOSFields();
 		String numberOS = JOptionPane.showInputDialog(null,
-			"Informe um número de OS", "Pesquisar OS", JOptionPane.INFORMATION_MESSAGE);
+			"Informe um número de OS\nDeve ser um número inteiro, Ex.: 1, 101, 3...",
+			"Pesquisar OS", JOptionPane.INFORMATION_MESSAGE);
 		numberOS = numberOS != null ? numberOS : "";
 		if (!numberOS.isEmpty() && isNumber(numberOS)) {
 			boolean searchOS = finderOSById(Integer.parseInt(numberOS));
@@ -768,14 +801,16 @@ public class TelaOS extends javax.swing.JInternalFrame {
 				jTextFieldPesquisaCliente.setEnabled(false);
 				jTextFieldPesquisaCliente.setText(null);
 				finderClientById(Integer.parseInt(this.jTextFieldClienteId.getText()));
+				jButtonOSUpdate.setEnabled(true);
+				jButtonOSDelete.setEnabled(true);
+				jButtonOSPrint.setEnabled(true);
 			}
 			if (searchOS == false) {
-				JOptionPane.showMessageDialog(null, "Ordem de serviço não encontrada",
+				JOptionPane.showMessageDialog(null, "Ordem de serviço não encontrada.",
 					"Pesquisa de OS", JOptionPane.WARNING_MESSAGE);
 			}
 		} else {
-			JOptionPane.showMessageDialog(null,
-				"Valor para OS inválido!\nDeve ser um número inteiro, Ex.: 100, 101, 102...",
+			JOptionPane.showMessageDialog(null, "Valor para OS inválido!",
 				"Pesquisa de OS", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonOSReadActionPerformed
@@ -783,7 +818,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
     private void jButtonOSUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOSUpdateActionPerformed
 		if (!jTextFieldClienteId.getText().isEmpty()
 			&& !jTextFieldEquipamentoOS.getText().isEmpty()
-			&& !jTextFieldDefeitoOS.getText().isEmpty()) {
+			&& !jTextFieldDefeitoOS.getText().isEmpty()
+			&& jComboBoxStatusOS.getSelectedIndex() != -1) {
 			updateOSById(Integer.parseInt(jTextFieldNumeroOS.getText()));
 			clearOSFields();
 			jButtonOSCreate.setEnabled(true);
@@ -801,12 +837,11 @@ public class TelaOS extends javax.swing.JInternalFrame {
 				"Ao confirmar, não será possível recuperar os dados da OS.",
 				"Deseja excluir a OS?", JOptionPane.YES_NO_OPTION);
 			if (opcao == JOptionPane.YES_OPTION) {
-//				final boolean deleteOSById = deleteOSById(idOs);
 				if (deleteOSById(idOs)) {
 					clearOSFields();
 					jButtonOSCreate.setEnabled(true);
 					jTextFieldPesquisaCliente.setEnabled(true);
-					JOptionPane.showMessageDialog(null, "OS excluída com sucesso!",
+					JOptionPane.showMessageDialog(null, "OS excluída do sistema.",
 						"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					JOptionPane.showMessageDialog(null, "Exclusão de OS não realizada.",
@@ -817,6 +852,9 @@ public class TelaOS extends javax.swing.JInternalFrame {
 				JOptionPane.showMessageDialog(null, "Operação de exclusão cancelada.",
 					"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
 			}
+		} else {
+			JOptionPane.showMessageDialog(null, "Necessário selecionar uma OS.",
+				"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonOSDeleteActionPerformed
 
@@ -832,6 +870,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
     private javax.swing.JFormattedTextField jFormattedTextFieldValorTotal;
     private javax.swing.JLabel jLabelClienteId;
     private javax.swing.JLabel jLabelDataOS;
+    private javax.swing.JLabel jLabelDateUpdateOS;
     private javax.swing.JLabel jLabelDefeitoOS;
     private javax.swing.JLabel jLabelEquipamentoOS;
     private javax.swing.JLabel jLabelInfo;
@@ -850,6 +889,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
     private javax.swing.JTable jTableClients;
     private javax.swing.JTextField jTextFieldClienteId;
     private javax.swing.JTextField jTextFieldDataOS;
+    private javax.swing.JTextField jTextFieldDateUpdateOS;
     private javax.swing.JTextField jTextFieldDefeitoOS;
     private javax.swing.JTextField jTextFieldEquipamentoOS;
     private javax.swing.JTextField jTextFieldNumeroOS;
