@@ -34,11 +34,15 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 	}
 
 	private void clearUserFields() {
+		jTextFieldIdUser.setEnabled(true);
 		jTextFieldIdUser.setText(null);
 		jTextFieldUsuario.setText(null);
 		jTextFieldFone.setText(null);
 		jTextFieldLogin.setText(null);
 		jPasswordFieldSenha.setText(null);
+		jComboBoxPerfil.setSelectedIndex(-1);
+		jButtonUserCreate.setEnabled(true);
+		jButtonUserRead.setEnabled(true);
 	}
 
 	//create
@@ -266,7 +270,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
         jComboBoxPerfil.setPreferredSize(new java.awt.Dimension(110, 22));
 
         jButtonUserNew.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconNew.png"))); // NOI18N
-        jButtonUserNew.setToolTipText("Iniciar novo usuário");
+        jButtonUserNew.setToolTipText("Iniciar novo usuário ou pesquisa por um usuário");
         jButtonUserNew.setBorder(null);
         jButtonUserNew.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonUserNew.addActionListener(new java.awt.event.ActionListener() {
@@ -438,6 +442,9 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 						message = "Encontrado usuário! " + jTextFieldUsuario.getText();
 						messageTitle = "Resultado da pesquisa";
 						messageType = JOptionPane.INFORMATION_MESSAGE;
+						jTextFieldIdUser.setEnabled(false);
+						jButtonUserCreate.setEnabled(false);
+						jButtonUserRead.setEnabled(false);
 					} else {
 						message = "Usuário por id não encontrado!";
 						messageTitle = "Pesquisa por ID";
@@ -457,6 +464,9 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 					message = "Encontrado usuário! " + jTextFieldUsuario.getText();
 					messageTitle = "Resultado da pesquisa";
 					messageType = JOptionPane.INFORMATION_MESSAGE;
+					jTextFieldIdUser.setEnabled(false);
+					jButtonUserCreate.setEnabled(false);
+					jButtonUserRead.setEnabled(false);
 				} else {
 					message = "Usuário por login não encontrado!";
 					messageTitle = "Pesquisa por Login";
@@ -516,6 +526,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			&& !jComboBoxPerfil.getSelectedItem().equals("")) {
 			updateUserById(Integer.parseInt(jTextFieldIdUser.getText()));
 			clearUserFields();
+			jButtonUserCreate.setEnabled(true);
 		} else {
 			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!",
 				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
