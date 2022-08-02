@@ -119,16 +119,20 @@ public class TelaLogin extends javax.swing.JFrame {
         setPreferredSize(new java.awt.Dimension(365, 200));
         setResizable(false);
 
+        jLabelLoginUsuario.setLabelFor(jTextFieldLoginUsuario);
         jLabelLoginUsuario.setText("Usuário");
 
+        jTextFieldLoginUsuario.setToolTipText("Informe login de usuário");
         jTextFieldLoginUsuario.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTextFieldLoginUsuarioKeyPressed(evt);
             }
         });
 
+        jLabelLoginSenha.setLabelFor(jPasswordFieldLoginSenha);
         jLabelLoginSenha.setText("Senha");
 
+        jPasswordFieldLoginSenha.setToolTipText("Informe senha de usuário");
         jPasswordFieldLoginSenha.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jPasswordFieldLoginSenhaKeyPressed(evt);
@@ -136,6 +140,7 @@ public class TelaLogin extends javax.swing.JFrame {
         });
 
         btnLoginEntrar.setText("Entrar");
+        btnLoginEntrar.setToolTipText("ENTER para acessar o sistema, ESC para sair.");
         btnLoginEntrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnLoginEntrarActionPerformed(evt);
@@ -144,6 +149,7 @@ public class TelaLogin extends javax.swing.JFrame {
 
         jLabelStatusConnection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/checkQuestion.png"))); // NOI18N
         jLabelStatusConnection.setText("Status of DB Conection");
+        jLabelStatusConnection.setToolTipText("Situação atual da conexão com o banco de dados.");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

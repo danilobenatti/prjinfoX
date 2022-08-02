@@ -79,20 +79,32 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabelLoginUsuario">
       <Properties>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="jTextFieldLoginUsuario"/>
+        </Property>
         <Property name="text" type="java.lang.String" value="Usu&#xe1;rio"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldLoginUsuario">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Informe login de usu&#xe1;rio"/>
+      </Properties>
       <Events>
         <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextFieldLoginUsuarioKeyPressed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelLoginSenha">
       <Properties>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="jPasswordFieldLoginSenha"/>
+        </Property>
         <Property name="text" type="java.lang.String" value="Senha"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JPasswordField" name="jPasswordFieldLoginSenha">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Informe senha de usu&#xe1;rio"/>
+      </Properties>
       <Events>
         <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jPasswordFieldLoginSenhaKeyPressed"/>
       </Events>
@@ -100,6 +112,7 @@
     <Component class="javax.swing.JButton" name="btnLoginEntrar">
       <Properties>
         <Property name="text" type="java.lang.String" value="Entrar"/>
+        <Property name="toolTipText" type="java.lang.String" value="ENTER para acessar o sistema, ESC para sair."/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLoginEntrarActionPerformed"/>
@@ -111,6 +124,7 @@
           <Image iconType="3" name="/br/com/infox/icons/checkQuestion.png"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Status of DB Conection"/>
+        <Property name="toolTipText" type="java.lang.String" value="Situa&#xe7;&#xe3;o atual da conex&#xe3;o com o banco de dados."/>
       </Properties>
     </Component>
   </SubComponents>

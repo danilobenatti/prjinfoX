@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,11 +74,17 @@ public class TelaOS extends javax.swing.JInternalFrame {
 		finderClientById(Integer.parseInt(jTextFieldClienteId.getText()));
 	}
 
+	public static String noCurrencySymbol(String value, Locale locale) {
+		String symbol = Currency.getInstance(locale).getSymbol();
+		return value.replace(symbol, "").trim();
+	}
+
 	//create - Ordem de Serviço [OS]
 	private void addOS() {
 		String insert = "INSERT INTO tbos "
 			+ "(tipo, status, equipamento, defeito, servico, tecnico, valor, idcli) "
 			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+		String ValorTotal = noCurrencySymbol(jFormattedTextFieldValorTotal.getText(), locale);
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(insert,
@@ -85,9 +92,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			setValues(preparedStatement, tipo, jComboBoxStatusOS.getSelectedIndex(),
 				jTextFieldEquipamentoOS.getText().trim(), jTextFieldDefeitoOS.getText().trim(),
 				jTextFieldServicoOS.getText().trim(), jTextFieldTecnicoOS.getText().trim(),
-				(jFormattedTextFieldValorTotal.getText().isEmpty()
-				|| jFormattedTextFieldValorTotal.getText() == null) ? 0.00
-				: parseFormat(jFormattedTextFieldValorTotal.getText(), locale),
+				(ValorTotal.isEmpty()) ? 0.00 : parseFormat(ValorTotal, locale),
 				Integer.parseInt(jTextFieldClienteId.getText()));
 			int insertOk = preparedStatement.executeUpdate();
 			if (insertOk > 0) {
@@ -201,6 +206,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	private void updateOSById(int id) {
 		String update = "UPDATE tbos SET tipo = ?, status = ?, equipamento = ?, "
 			+ "defeito = ?, servico = ?, tecnico = ?, valor = ? WHERE idos= ?";
+		String ValorTotal = noCurrencySymbol(jFormattedTextFieldValorTotal.getText(), locale);
 		connection = ModuloConexao.connection();
 		try {
 			connection.setAutoCommit(false);
@@ -208,7 +214,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			setValues(preparedStatement, tipo, jComboBoxStatusOS.getSelectedIndex(),
 				jTextFieldEquipamentoOS.getText().trim(), jTextFieldDefeitoOS.getText().trim(),
 				jTextFieldServicoOS.getText().trim(), jTextFieldTecnicoOS.getText().trim(),
-				parseFormat(jFormattedTextFieldValorTotal.getText(), locale), id);
+				(ValorTotal.isEmpty()) ? 0.00 : parseFormat(ValorTotal, locale), id);
 			int updateOk = preparedStatement.executeUpdate();
 			if (updateOk > 0) {
 				connection.commit();
@@ -405,6 +411,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 
         jTextFieldDateUpdateOS.setEditable(false);
         jTextFieldDateUpdateOS.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTextFieldDateUpdateOS.setToolTipText("Data e hora de atualização da OS");
 
         jPanelCliente.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Cliente"));
 
@@ -797,19 +804,21 @@ public class TelaOS extends javax.swing.JInternalFrame {
 		if (!numberOS.isEmpty() && isNumber(numberOS)) {
 			boolean searchOS = finderOSById(Integer.parseInt(numberOS));
 			if (searchOS == true) {
-				jButtonOSCreate.setEnabled(false);
 				jTextFieldPesquisaCliente.setEnabled(false);
 				jTextFieldPesquisaCliente.setText(null);
 				finderClientById(Integer.parseInt(this.jTextFieldClienteId.getText()));
+				jButtonOSCreate.setEnabled(false);
 				jButtonOSUpdate.setEnabled(true);
 				jButtonOSDelete.setEnabled(true);
 				jButtonOSPrint.setEnabled(true);
 			}
 			if (searchOS == false) {
+				jButtonOSCreate.setEnabled(true);
 				JOptionPane.showMessageDialog(null, "Ordem de serviço não encontrada.",
 					"Pesquisa de OS", JOptionPane.WARNING_MESSAGE);
 			}
 		} else {
+			jButtonOSCreate.setEnabled(true);
 			JOptionPane.showMessageDialog(null, "Valor para OS inválido!",
 				"Pesquisa de OS", JOptionPane.WARNING_MESSAGE);
 		}

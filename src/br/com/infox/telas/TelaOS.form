@@ -326,6 +326,7 @@
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
         <Property name="horizontalAlignment" type="int" value="0"/>
+        <Property name="toolTipText" type="java.lang.String" value="Data e hora de atualiza&#xe7;&#xe3;o da OS"/>
       </Properties>
     </Component>
     <Container class="javax.swing.JPanel" name="jPanelCliente">
