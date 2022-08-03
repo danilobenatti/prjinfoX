@@ -2,6 +2,7 @@ package br.com.infox.telas;
 
 import br.com.infox.dal.ModuloConexao;
 import static br.com.infox.dal.ModuloConexao.fecharConexao;
+import br.com.infox.dal.Tools;
 import static br.com.infox.dal.Tools.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -609,6 +610,11 @@ public class TelaOS extends javax.swing.JInternalFrame {
         jButtonOSPrint.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonOSPrint.setEnabled(false);
         jButtonOSPrint.setPreferredSize(new java.awt.Dimension(64, 64));
+        jButtonOSPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonOSPrintActionPerformed(evt);
+            }
+        });
 
         jLabelInfo.setText("* Campos obrigatórios");
 
@@ -866,6 +872,12 @@ public class TelaOS extends javax.swing.JInternalFrame {
 				"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonOSDeleteActionPerformed
+
+    private void jButtonOSPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOSPrintActionPerformed
+        Tools.printReport(
+			"D:\\NetBeansProjects\\prjinfoX\\src\\br\\com\\infox\\reports\\reportOS.jasper", 
+			Integer.parseInt(jTextFieldNumeroOS.getText()));
+    }//GEN-LAST:event_jButtonOSPrintActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupTipoOS;

@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,6 +66,25 @@ public class Tools {
 				connection = ModuloConexao.connection();
 				File file = new File(pathFile);
 				JasperPrint jasperPrint = JasperFillManager.fillReport(file.getPath(), null, connection);
+				JasperViewer.viewReport(jasperPrint, false);
+				connection.close();
+			} catch (SQLException | JRException ex) {
+				Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+	}
+
+	public static void printReport(String pathFile, int id) {
+		int showConfirmDialog = JOptionPane.showConfirmDialog(null,
+			"Confirma impressão", "Relatório",
+			JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (showConfirmDialog == JOptionPane.YES_OPTION) {
+			try {
+				connection = ModuloConexao.connection();
+				File file = new File(pathFile);
+				HashMap filtro = new HashMap();
+				filtro.put("idos", id);
+				JasperPrint jasperPrint = JasperFillManager.fillReport(file.getPath(), filtro, connection);
 				JasperViewer.viewReport(jasperPrint, false);
 				connection.close();
 			} catch (SQLException | JRException ex) {
