@@ -1,19 +1,11 @@
 package br.com.infox.telas;
 
-import br.com.infox.dal.ModuloConexao;
-import java.io.File;
+import br.com.infox.dal.Tools;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.view.JasperViewer;
 
 public class TelaPrincipal extends javax.swing.JFrame {
 
@@ -143,6 +135,11 @@ public class TelaPrincipal extends javax.swing.JFrame {
         jMenuRelatorioServicos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconService.png"))); // NOI18N
         jMenuRelatorioServicos.setText("Serviços");
         jMenuRelatorioServicos.setToolTipText("Relatório de serviços");
+        jMenuRelatorioServicos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuRelatorioServicosActionPerformed(evt);
+            }
+        });
         jMenuRelatorio.add(jMenuRelatorioServicos);
 
         jMenuBarPrincipal.add(jMenuRelatorio);
@@ -257,26 +254,12 @@ public class TelaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuCadastroOrdemServicoActionPerformed
 
     private void jMenuRelatorioClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuRelatorioClientesActionPerformed
-
-		int showConfirmDialog = JOptionPane.showConfirmDialog(null,
-			"Confirma impressão", "Relatório",
-			JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-		if (showConfirmDialog == JOptionPane.YES_OPTION) {
-			try {
-				connection = ModuloConexao.connection();
-
-				String pathFile = "D:/NetBeansProjects/prjinfoX/src/br/com/infox/reports/reportClients.jasper";
-				File file = new File(pathFile);
-
-				JasperPrint jasperPrint = JasperFillManager.fillReport(file.getPath(), null, connection);
-				JasperViewer.viewReport(jasperPrint, false);
-
-				connection.close();
-			} catch (SQLException | JRException ex) {
-				Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-			}
-		}
+		Tools.printReport("D:\\NetBeansProjects\\prjinfoX\\src\\br\\com\\infox\\reports\\reportClients.jasper");
     }//GEN-LAST:event_jMenuRelatorioClientesActionPerformed
+
+    private void jMenuRelatorioServicosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuRelatorioServicosActionPerformed
+		Tools.printReport("D:\\NetBeansProjects\\prjinfoX\\src\\br\\com\\infox\\reports\\reportService.jasper");
+    }//GEN-LAST:event_jMenuRelatorioServicosActionPerformed
 
 	/**
 	 * @param args the command line arguments
