@@ -158,7 +158,7 @@ WHERE (idos = $P{idos});]]>
 			<textField>
 				<reportElement x="674" y="0" width="128" height="20" uuid="641bd547-a545-465a-9c53-5ec8b3e1c595"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{data_up}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, new Locale("pt", "BR")).format($F{data_up})]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
@@ -222,18 +222,24 @@ WHERE (idos = $P{idos});]]>
 		<band height="20" splitType="Stretch">
 			<textField>
 				<reportElement x="0" y="0" width="72" height="20" uuid="e3ccbdc7-0374-496f-a912-6a343d7ec88f"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{data_os}]]></textFieldExpression>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[DateFormat.getDateInstance(DateFormat.MEDIUM).format($F{data_os})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="72" y="0" width="96" height="20" uuid="c1d15ed6-10d5-4f2a-b3ea-99a4ac11887f"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{tipo}.equals("O") ? "Orçamento" : 
 $F{tipo}.equals("S") ? "Ordem de Serviço" : ""]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="168" y="0" width="128" height="20" uuid="ce3578ab-25e1-4382-b473-7faeb56f2cb3"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{status} == 0 ? "Na bancada" : 
 $F{status} == 1 ? "Aguardando Aprovação" : 
 $F{status} == 2 ? "Aguardando Peça" : 
@@ -244,22 +250,30 @@ $F{status} == 6 ? "Retornou" : ""]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="296" y="0" width="142" height="20" uuid="1cc9e0d4-0571-4068-8c5c-3dc67e754529"/>
-				<textElement verticalAlignment="Middle"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{equipamento}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="438" y="0" width="128" height="20" uuid="bd5440e2-46e2-4906-b635-03eab1a9b4c9"/>
-				<textElement verticalAlignment="Middle"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{defeito}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="566" y="0" width="164" height="20" uuid="0878ed21-f112-400e-9db8-90a29af4d3e9"/>
-				<textElement verticalAlignment="Middle"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{servico}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="730" y="0" width="72" height="20" uuid="30c69514-af8f-44e3-a180-1abfd6e31fba"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{valor}]]></textFieldExpression>
 			</textField>
 		</band>
