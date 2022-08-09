@@ -30,21 +30,21 @@ public class TelaLogin extends javax.swing.JFrame {
 			if (resultSet.next()) {
 				TelaPrincipal principal = new TelaPrincipal();
 				TelaPrincipal.jLabelUserName.setText(resultSet.getString("usuario"));
-				switch (resultSet.getString("perfil")) {
-					case "admin":
+				switch (resultSet.getInt("perfil")) {
+					case 0: //admin
 						principal.setVisible(true);
 						TelaPrincipal.jMenuCadastroUsuarios.setEnabled(true);
 						TelaPrincipal.jMenuRelatorio.setEnabled(true);
 						TelaPrincipal.jLabelUserName.setForeground(Color.red);
 						this.dispose();
 						break;
-					case "user":
+					case 1: //user
 						principal.setVisible(true);
 						TelaPrincipal.jMenuCadastroUsuarios.setEnabled(true);
 						TelaPrincipal.jLabelUserName.setForeground(Color.blue);
 						this.dispose();
 						break;
-					case "guest":
+					case 2: //guest
 						principal.setVisible(true);
 						TelaPrincipal.jLabelUserName.setForeground(Color.gray);
 						this.dispose();

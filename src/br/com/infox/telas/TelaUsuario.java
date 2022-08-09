@@ -56,7 +56,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			setValues(preparedStatement, jTextFieldUsuario.getText(),
 				jTextFieldFone.getText(), jTextFieldLogin.getText(),
 				new String(jPasswordFieldSenha.getPassword()),
-				jComboBoxPerfil.getSelectedItem().toString());
+				jComboBoxPerfil.getSelectedIndex());
 			int insertOk = preparedStatement.executeUpdate();
 			if (insertOk > 0) {
 				resultSet = preparedStatement.getGeneratedKeys();
@@ -92,7 +92,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 				jTextFieldFone.setText(resultSet.getString("fone"));
 				jTextFieldLogin.setText(resultSet.getString("login"));
 				jPasswordFieldSenha.setText(resultSet.getString("senha"));
-				jComboBoxPerfil.setSelectedItem(resultSet.getString("perfil"));
+				jComboBoxPerfil.setSelectedIndex(resultSet.getInt("perfil"));
 				findUser = true;
 			}
 		} catch (SQLException ex) {
@@ -118,7 +118,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 				jTextFieldFone.setText(resultSet.getString("fone"));
 				jTextFieldLogin.setText(resultSet.getString("login"));
 				jPasswordFieldSenha.setText(resultSet.getString("senha"));
-				jComboBoxPerfil.setSelectedItem(resultSet.getString("perfil"));
+				jComboBoxPerfil.setSelectedIndex(resultSet.getInt("perfil"));
 				findUser = true;
 			}
 		} catch (SQLException ex) {
@@ -141,7 +141,7 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
 			setValues(preparedStatement, jTextFieldUsuario.getText(),
 				jTextFieldFone.getText(), jTextFieldLogin.getText(),
 				new String(jPasswordFieldSenha.getPassword()),
-				jComboBoxPerfil.getSelectedItem().toString(), idUser);
+				jComboBoxPerfil.getSelectedIndex(), idUser);
 			int updateOk = preparedStatement.executeUpdate();
 			if (updateOk > 0) {
 				JOptionPane.showMessageDialog(null,
@@ -265,8 +265,8 @@ public class TelaUsuario extends javax.swing.JInternalFrame {
         jLabelPerfil.setLabelFor(jComboBoxPerfil);
         jLabelPerfil.setText("* Perfil");
 
-        jComboBoxPerfil.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "admin", "user", "guest" }));
-        jComboBoxPerfil.setSelectedIndex(1);
+        jComboBoxPerfil.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "admin[0]", "user[1]", "guest[2]" }));
+        jComboBoxPerfil.setSelectedIndex(-1);
         jComboBoxPerfil.setPreferredSize(new java.awt.Dimension(110, 22));
 
         jButtonUserNew.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icons/iconNew.png"))); // NOI18N
