@@ -4,6 +4,8 @@ import br.com.infox.dal.ModuloConexao;
 import static br.com.infox.dal.ModuloConexao.fecharConexao;
 import br.com.infox.dal.Tools;
 import static br.com.infox.dal.Tools.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,7 +39,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", locale);
 	Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo"));
 	DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(
-		DateFormat.MEDIUM, DateFormat.SHORT, locale);
+			DateFormat.MEDIUM, DateFormat.SHORT, locale);
 	NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
 
 	/**
@@ -70,7 +72,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	public void setFieldsClient() {
 		int set = jTableClients.getSelectedRow();
 		jTextFieldClienteId.setText(
-			String.format("%04d", jTableClients.getModel().getValueAt(set, 0)));
+				String.format("%04d", jTableClients.getModel().getValueAt(set, 0)));
 		jTextFieldPesquisaCliente.setText(jTableClients.getModel().getValueAt(set, 1).toString());
 		finderClientById(Integer.parseInt(jTextFieldClienteId.getText()));
 	}
@@ -83,27 +85,27 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	//create - Ordem de Serviço [OS]
 	private void addOS() {
 		String insert = "INSERT INTO tbos "
-			+ "(tipo, status, equipamento, defeito, servico, tecnico, valor, idcli) "
-			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+				+ "(tipo, status, equipamento, defeito, servico, tecnico, valor, idcli) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 		String ValorTotal = noCurrencySymbol(jFormattedTextFieldValorTotal.getText(), locale);
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(insert,
-				Statement.RETURN_GENERATED_KEYS);
+					Statement.RETURN_GENERATED_KEYS);
 			setValues(preparedStatement, tipo, jComboBoxStatusOS.getSelectedIndex(),
-				jTextFieldEquipamentoOS.getText().trim(), jTextFieldDefeitoOS.getText().trim(),
-				jTextFieldServicoOS.getText().trim(), jTextFieldTecnicoOS.getText().trim(),
-				(ValorTotal.isEmpty()) ? 0.00 : parseFormat(ValorTotal, locale),
-				Integer.parseInt(jTextFieldClienteId.getText()));
+					jTextFieldEquipamentoOS.getText().trim(), jTextFieldDefeitoOS.getText().trim(),
+					jTextFieldServicoOS.getText().trim(), jTextFieldTecnicoOS.getText().trim(),
+					(ValorTotal.isEmpty()) ? 0.00 : parseFormat(ValorTotal, locale),
+					Integer.parseInt(jTextFieldClienteId.getText()));
 			int insertOk = preparedStatement.executeUpdate();
 			if (insertOk > 0) {
 				resultSet = preparedStatement.getGeneratedKeys();
 				resultSetMetaData = resultSet.getMetaData();
 				while (resultSet.next()) {
 					System.out.printf("%s: %s\n",
-						resultSetMetaData.getColumnName(1), resultSet.getInt(1));
+							resultSetMetaData.getColumnName(1), resultSet.getInt(1));
 					JOptionPane.showMessageDialog(null,
-						"OS id(" + resultSet.getInt(1) + ") adicionada com sucesso!");
+							"OS id(" + resultSet.getInt(1) + ") adicionada com sucesso!");
 				}
 			}
 		} catch (SQLException ex) {
@@ -118,8 +120,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	//read - Clientes por nome ou email
 	private void finderClientByName(String string) {
 		String select = "SELECT idcli AS ID, nomecli AS Nome, "
-			+ "fonecli AS Telefone, emailcli AS Email FROM tbclientes "
-			+ "WHERE lower(nomecli) LIKE lower(?) OR lower(emailcli) LIKE lower(?)";
+				+ "fonecli AS Telefone, emailcli AS Email FROM tbclientes "
+				+ "WHERE lower(nomecli) LIKE lower(?) OR lower(emailcli) LIKE lower(?)";
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(select);
@@ -137,8 +139,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	//read - Cliente por id
 	private void finderClientById(int id) {
 		String select = "SELECT idcli AS ID, nomecli AS Nome, "
-			+ "fonecli AS Telefone, emailcli AS Email "
-			+ "FROM tbclientes WHERE idcli = ?";
+				+ "fonecli AS Telefone, emailcli AS Email "
+				+ "FROM tbclientes WHERE idcli = ?";
 		connection = ModuloConexao.connection();
 		try {
 			preparedStatement = connection.prepareStatement(select);
@@ -155,8 +157,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	//read - Ordem de Serviço [OS] por id
 	private boolean finderOSById(int id) {
 		String select = "SELECT idos, data_os, tipo, status, equipamento, "
-			+ "defeito, servico, tecnico, valor, idcli, data_up "
-			+ "FROM dbinfox.tbos WHERE idos = ?";
+				+ "defeito, servico, tecnico, valor, idcli, data_up "
+				+ "FROM dbinfox.tbos WHERE idos = ?";
 		boolean searchOS = true;
 		connection = ModuloConexao.connection();
 		try {
@@ -165,9 +167,9 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			resultSet = preparedStatement.executeQuery();
 			if (resultSet.next()) {
 				jTextFieldNumeroOS.setText(
-					String.format("%04d", resultSet.getInt("idos")));
+						String.format("%04d", resultSet.getInt("idos")));
 				jTextFieldDataOS.setText(
-					dateFormat.format(resultSet.getDate("data_os")));
+						dateFormat.format(resultSet.getDate("data_os")));
 				String rbtTipo = resultSet.getString("tipo");
 				switch (rbtTipo) {
 					case "O":
@@ -187,11 +189,11 @@ public class TelaOS extends javax.swing.JInternalFrame {
 				jTextFieldServicoOS.setText(resultSet.getString("servico"));
 				jTextFieldTecnicoOS.setText(resultSet.getString("tecnico"));
 				jFormattedTextFieldValorTotal.setValue(
-					currencyFormat.format(resultSet.getDouble("valor")));
+						currencyFormat.format(resultSet.getDouble("valor")));
 				jTextFieldClienteId.setText(
-					String.format("%04d", resultSet.getInt("idcli")));
+						String.format("%04d", resultSet.getInt("idcli")));
 				jTextFieldDateUpdateOS.setText(
-					dateTimeFormat.format(resultSet.getTimestamp("data_up", calendar)));
+						dateTimeFormat.format(resultSet.getTimestamp("data_up", calendar)));
 			} else {
 				searchOS = false; // OS não encontrada
 			}
@@ -206,16 +208,16 @@ public class TelaOS extends javax.swing.JInternalFrame {
 	//update - Ordem de Serviço [OS] por id
 	private void updateOSById(int id) {
 		String update = "UPDATE tbos SET tipo = ?, status = ?, equipamento = ?, "
-			+ "defeito = ?, servico = ?, tecnico = ?, valor = ? WHERE idos= ?";
+				+ "defeito = ?, servico = ?, tecnico = ?, valor = ? WHERE idos= ?";
 		String ValorTotal = noCurrencySymbol(jFormattedTextFieldValorTotal.getText(), locale);
 		connection = ModuloConexao.connection();
 		try {
 			connection.setAutoCommit(false);
 			preparedStatement = connection.prepareStatement(update);
 			setValues(preparedStatement, tipo, jComboBoxStatusOS.getSelectedIndex(),
-				jTextFieldEquipamentoOS.getText().trim(), jTextFieldDefeitoOS.getText().trim(),
-				jTextFieldServicoOS.getText().trim(), jTextFieldTecnicoOS.getText().trim(),
-				(ValorTotal.isEmpty()) ? 0.00 : parseFormat(ValorTotal, locale), id);
+					jTextFieldEquipamentoOS.getText().trim(), jTextFieldDefeitoOS.getText().trim(),
+					jTextFieldServicoOS.getText().trim(), jTextFieldTecnicoOS.getText().trim(),
+					(ValorTotal.isEmpty()) ? 0.00 : parseFormat(ValorTotal, locale), id);
 			int updateOk = preparedStatement.executeUpdate();
 			if (updateOk > 0) {
 				connection.commit();
@@ -738,7 +740,7 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			finderClientByName(jTextFieldPesquisaCliente.getText());
 		} else {
 			JOptionPane.showMessageDialog(null, "Necessário informar alguma parte do nome.",
-				"Pesquisa de Cliente", JOptionPane.WARNING_MESSAGE);
+					"Pesquisa de Cliente", JOptionPane.WARNING_MESSAGE);
 			jTextFieldPesquisaCliente.setText(null);
 			((DefaultTableModel) jTableClients.getModel()).setRowCount(0);
 		}
@@ -763,14 +765,14 @@ public class TelaOS extends javax.swing.JInternalFrame {
 
     private void jButtonOSCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOSCreateActionPerformed
 		if (!jTextFieldClienteId.getText().isEmpty()
-			&& !jTextFieldEquipamentoOS.getText().isEmpty()
-			&& !jTextFieldDefeitoOS.getText().isEmpty()
-			&& jComboBoxStatusOS.getSelectedIndex() != -1) {
+				&& !jTextFieldEquipamentoOS.getText().isEmpty()
+				&& !jTextFieldDefeitoOS.getText().isEmpty()
+				&& jComboBoxStatusOS.getSelectedIndex() != -1) {
 			addOS();
 			clearOSFields();
 		} else {
 			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!",
-				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
+					"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonOSCreateActionPerformed
 
@@ -804,8 +806,8 @@ public class TelaOS extends javax.swing.JInternalFrame {
     private void jButtonOSReadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOSReadActionPerformed
 		clearOSFields();
 		String numberOS = JOptionPane.showInputDialog(null,
-			"Informe um número de OS\nDeve ser um número inteiro, Ex.: 1, 101, 3...",
-			"Pesquisar OS", JOptionPane.INFORMATION_MESSAGE);
+				"Informe um número de OS\nDeve ser um número inteiro, Ex.: 1, 101, 3...",
+				"Pesquisar OS", JOptionPane.INFORMATION_MESSAGE);
 		numberOS = numberOS != null ? numberOS : "";
 		if (!numberOS.isEmpty() && isNumber(numberOS)) {
 			boolean searchOS = finderOSById(Integer.parseInt(numberOS));
@@ -821,27 +823,27 @@ public class TelaOS extends javax.swing.JInternalFrame {
 			if (searchOS == false) {
 				jButtonOSCreate.setEnabled(true);
 				JOptionPane.showMessageDialog(null, "Ordem de serviço não encontrada.",
-					"Pesquisa de OS", JOptionPane.WARNING_MESSAGE);
+						"Pesquisa de OS", JOptionPane.WARNING_MESSAGE);
 			}
 		} else {
 			jButtonOSCreate.setEnabled(true);
 			JOptionPane.showMessageDialog(null, "Valor para OS inválido!",
-				"Pesquisa de OS", JOptionPane.WARNING_MESSAGE);
+					"Pesquisa de OS", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonOSReadActionPerformed
 
     private void jButtonOSUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOSUpdateActionPerformed
 		if (!jTextFieldClienteId.getText().isEmpty()
-			&& !jTextFieldEquipamentoOS.getText().isEmpty()
-			&& !jTextFieldDefeitoOS.getText().isEmpty()
-			&& jComboBoxStatusOS.getSelectedIndex() != -1) {
+				&& !jTextFieldEquipamentoOS.getText().isEmpty()
+				&& !jTextFieldDefeitoOS.getText().isEmpty()
+				&& jComboBoxStatusOS.getSelectedIndex() != -1) {
 			updateOSById(Integer.parseInt(jTextFieldNumeroOS.getText()));
 			clearOSFields();
 			jButtonOSCreate.setEnabled(true);
 			jTextFieldPesquisaCliente.setEnabled(true);
 		} else {
 			JOptionPane.showMessageDialog(null, "Campos com (*) são obrigatórios!",
-				"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
+					"Campos obrigatórios", JOptionPane.WARNING_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonOSUpdateActionPerformed
 
@@ -849,34 +851,34 @@ public class TelaOS extends javax.swing.JInternalFrame {
 		if (!jTextFieldNumeroOS.getText().isEmpty()) {
 			int idOs = Integer.parseInt(jTextFieldNumeroOS.getText());
 			int opcao = JOptionPane.showConfirmDialog(null,
-				"Ao confirmar, não será possível recuperar os dados da OS.",
-				"Deseja excluir a OS?", JOptionPane.YES_NO_OPTION);
+					"Ao confirmar, não será possível recuperar os dados da OS.",
+					"Deseja excluir a OS?", JOptionPane.YES_NO_OPTION);
 			if (opcao == JOptionPane.YES_OPTION) {
 				if (deleteOSById(idOs)) {
 					clearOSFields();
 					jButtonOSCreate.setEnabled(true);
 					jTextFieldPesquisaCliente.setEnabled(true);
 					JOptionPane.showMessageDialog(null, "OS excluída do sistema.",
-						"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
+							"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					JOptionPane.showMessageDialog(null, "Exclusão de OS não realizada.",
-						"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
+							"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 			if (opcao == JOptionPane.NO_OPTION) {
 				JOptionPane.showMessageDialog(null, "Operação de exclusão cancelada.",
-					"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
+						"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
 			}
 		} else {
 			JOptionPane.showMessageDialog(null, "Necessário selecionar uma OS.",
-				"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
+					"Exclusão de OS", JOptionPane.INFORMATION_MESSAGE);
 		}
     }//GEN-LAST:event_jButtonOSDeleteActionPerformed
 
     private void jButtonOSPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOSPrintActionPerformed
-        Tools.printReport(
-			"D:\\NetBeansProjects\\prjinfoX\\src\\br\\com\\infox\\reports\\reportOS.jasper", 
-			Integer.parseInt(jTextFieldNumeroOS.getText()));
+		Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+		Tools.printReport(path + "\\src\\br\\com\\infox\\reports\\reportOS.jasper",
+				Integer.parseInt(jTextFieldNumeroOS.getText()));
     }//GEN-LAST:event_jButtonOSPrintActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -3,3 +3,4 @@ build.xml
 build/*
 manifest.mf
 /dist/
+/lib/

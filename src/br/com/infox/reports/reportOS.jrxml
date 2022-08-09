@@ -62,7 +62,7 @@ WHERE (idos = $P{idos});]]>
 		<band height="80" splitType="Stretch">
 			<image isUsingCache="true">
 				<reportElement mode="Transparent" x="0" y="0" width="81" height="80" uuid="48d77bcc-b16c-4d55-98ee-f241d075d969"/>
-				<imageExpression><![CDATA["D:\\NetBeansProjects\\prjinfoX\\src\\br\\com\\infox\\icons\\iconLogo.png"]]></imageExpression>
+				<imageExpression><![CDATA["\\images\\iconLogo.png"]]></imageExpression>
 			</image>
 			<staticText>
 				<reportElement x="81" y="0" width="72" height="20" uuid="a795149f-2713-4382-b688-9a537ad2238a"/>

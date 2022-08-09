@@ -1,6 +1,8 @@
 package br.com.infox.telas;
 
 import br.com.infox.dal.Tools;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -254,11 +256,13 @@ public class TelaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuCadastroOrdemServicoActionPerformed
 
     private void jMenuRelatorioClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuRelatorioClientesActionPerformed
-		Tools.printReport("D:\\NetBeansProjects\\prjinfoX\\src\\br\\com\\infox\\reports\\reportClients.jasper");
+		Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+		Tools.printReport(path + "\\src\\br\\com\\infox\\reports\\reportClients.jasper");
     }//GEN-LAST:event_jMenuRelatorioClientesActionPerformed
 
     private void jMenuRelatorioServicosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuRelatorioServicosActionPerformed
-		Tools.printReport("D:\\NetBeansProjects\\prjinfoX\\src\\br\\com\\infox\\reports\\reportService.jasper");
+		Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+		Tools.printReport(path + "\\src\\br\\com\\infox\\reports\\reportService.jasper");
     }//GEN-LAST:event_jMenuRelatorioServicosActionPerformed
 
 	/**
